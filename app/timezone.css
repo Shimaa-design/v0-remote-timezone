@@ -248,7 +248,6 @@ h1 {
   cursor: pointer;
   color: white;
   transition: all 0.2s;
-  margin-left: 15px;
   flex-shrink: 0;
 }
 
@@ -283,8 +282,8 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  gap: 15px;
+ 
+  gap: 8px;
   min-height: 60px;
 }
 
@@ -299,18 +298,15 @@ h1 {
   font-weight: bold;
   color: #333;
   display: inline;
-  margin-right: 10px;
+  
 }
 
-.city-dial-container.local .city-name {
-  color: #667eea;
-}
+
 
 .city-timezone {
   font-size: 0.9rem;
   color: #999;
   display: block;
-  margin-top: 4px;
 }
 
 .city-current-time {
