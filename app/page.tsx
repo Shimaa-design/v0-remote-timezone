@@ -501,6 +501,7 @@ export default function RemoteTimezonePage() {
     }
 
     function startDrag(e: MouseEvent | TouchEvent) {
+      console.log("START DRAG - setting autoUpdate to false")
       isDragging = true
       autoUpdate = false
       dragStartX = e.type === "mousedown" ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
@@ -566,6 +567,7 @@ export default function RemoteTimezonePage() {
 
     function stopDrag() {
       if (isDragging) {
+        console.log("STOP DRAG - autoUpdate remains false, currentMinuteOffset:", currentMinuteOffset)
         isDragging = false
         dialElements.forEach((dialWrapper) => {
           dialWrapper.style.cursor = "grab"
@@ -579,6 +581,7 @@ export default function RemoteTimezonePage() {
         lastSnappedMinute = null
         // autoUpdate stays false, currentMinuteOffset is maintained
         // Dial stays at the dragged position - NO SNAPPING
+        console.log("After stopDrag - autoUpdate:", autoUpdate, "isDragging:", isDragging)
       }
     }
 
@@ -598,6 +601,12 @@ export default function RemoteTimezonePage() {
     function updateDialPositions() {
       if (isDragging || dialElements.length === 0) return
 
+      if (!autoUpdate) {
+        console.log("updateDialPositions SKIPPED - autoUpdate is false")
+        return
+      }
+
+      console.log("updateDialPositions RUNNING - autoUpdate is true")
       dialElements.forEach((dialWrapper) => {
         const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
 
@@ -620,10 +629,7 @@ export default function RemoteTimezonePage() {
 
         const finalPosition = centerPosition + minuteOffset - centerOffset
 
-        // Only update if autoUpdate is true (no manual offset)
-        if (autoUpdate) {
-          dialTrack.style.transform = `translateX(-${finalPosition}px)`
-        }
+        dialTrack.style.transform = `translateX(-${finalPosition}px)`
       })
     }
 
