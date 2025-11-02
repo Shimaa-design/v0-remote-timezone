@@ -575,30 +575,10 @@ export default function RemoteTimezonePage() {
           label.classList.remove("visible")
         })
 
-        const segmentWidth = 100
-        const pixelsPerMinute = segmentWidth / 30
-
-        dialElements.forEach((dialWrapper) => {
-          const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
-          const transform = dialTrack.style.transform
-          const match = transform.match(/translateX$$([^)]+)px$$/)
-          const currentOffset = match ? Number.parseFloat(match[1]) : 0
-
-          // Snap to nearest minute visually
-          const snapAmount = pixelsPerMinute
-          const snappedOffset = Math.round(currentOffset / snapAmount) * snapAmount
-
-          dialTrack.style.transition = "transform 0.15s ease-out"
-          dialTrack.style.transform = `translateX(${snappedOffset}px)`
-
-          setTimeout(() => {
-            dialTrack.style.transition = ""
-          }, 150)
-        })
-
         playSnapSound()
         lastSnappedMinute = null
         // autoUpdate stays false, currentMinuteOffset is maintained
+        // Dial stays at the dragged position - NO SNAPPING
       }
     }
 
