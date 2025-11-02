@@ -512,7 +512,7 @@ h1 {
 
   .header-bar {
     flex-direction: row;
-    gap: 15px;
+    gap: 8px;
   }
 
   .icon-button {
