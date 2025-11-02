@@ -8,7 +8,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
-  padding: 20px;
+  padding: 12px;
 }
 
 .container {
@@ -268,7 +268,7 @@ h1 {
 .city-dial-container {
   background: white;
   border-radius: 15px;
-  padding: 25px;
+  padding: 15px;
   margin-bottom: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -515,17 +515,16 @@ h1 {
   }
 
   .city-header {
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
   }
 
   .city-current-time {
-    text-align: left;
+    text-align: right;
   }
 
   .time-display {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .hour-segment {
