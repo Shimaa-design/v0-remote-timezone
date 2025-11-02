@@ -413,7 +413,7 @@ export default function RemoteTimezonePage() {
       const dialWrapper = e.currentTarget as HTMLElement
       const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
       const transform = dialTrack.style.transform
-      const match = transform.match(/translateX$$([^)]+)px$$/)
+      const match = transform.match(/translateX\(([^)]+)px\)/)
       dragStartOffset = match ? Number.parseFloat(match[1]) : 0
 
       dialWrapper.style.cursor = "grabbing"
