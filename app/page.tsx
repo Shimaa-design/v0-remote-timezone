@@ -1,11 +1,25 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import "./timezone.css"
 
 export default function RemoteTimezonePage() {
+  const initializedRef = useRef(false)
+
   useEffect(() => {
-    // All the original JavaScript logic
+    // Prevent double initialization in React StrictMode
+    if (initializedRef.current) return
+    initializedRef.current = true
+
+    // Use vanilla JS variables (not React state) - same as HTML version
+    let currentMinuteOffset = 0
+    let isDragging = false
+    let dragStartX = 0
+    let dragStartOffset = 0
+    let autoUpdate = true
+    let dialElements: HTMLElement[] = []
+    let lastSnappedMinute: number | null = null
+
     const cities = [
       // North America
       { name: "New York", timezone: "America/New_York" },
@@ -25,7 +39,6 @@ export default function RemoteTimezonePage() {
       { name: "Atlanta", timezone: "America/New_York" },
       { name: "Honolulu", timezone: "Pacific/Honolulu" },
       { name: "Anchorage", timezone: "America/Anchorage" },
-
       // South America
       { name: "São Paulo", timezone: "America/Sao_Paulo" },
       { name: "Buenos Aires", timezone: "America/Argentina/Buenos_Aires" },
@@ -34,7 +47,6 @@ export default function RemoteTimezonePage() {
       { name: "Bogotá", timezone: "America/Bogota" },
       { name: "Santiago", timezone: "America/Santiago" },
       { name: "Caracas", timezone: "America/Caracas" },
-
       // Europe
       { name: "London", timezone: "Europe/London" },
       { name: "Paris", timezone: "Europe/Paris" },
@@ -56,7 +68,6 @@ export default function RemoteTimezonePage() {
       { name: "Lisbon", timezone: "Europe/Lisbon" },
       { name: "Dublin", timezone: "Europe/Dublin" },
       { name: "Zurich", timezone: "Europe/Zurich" },
-
       // Asia
       { name: "Tokyo", timezone: "Asia/Tokyo" },
       { name: "Hong Kong", timezone: "Asia/Hong_Kong" },
@@ -81,7 +92,6 @@ export default function RemoteTimezonePage() {
       { name: "Abu Dhabi", timezone: "Asia/Dubai" },
       { name: "Taipei", timezone: "Asia/Taipei" },
       { name: "Hanoi", timezone: "Asia/Ho_Chi_Minh" },
-
       // Africa
       { name: "Cairo", timezone: "Africa/Cairo" },
       { name: "Lagos", timezone: "Africa/Lagos" },
@@ -91,7 +101,6 @@ export default function RemoteTimezonePage() {
       { name: "Accra", timezone: "Africa/Accra" },
       { name: "Algiers", timezone: "Africa/Algiers" },
       { name: "Tunis", timezone: "Africa/Tunis" },
-
       // Oceania
       { name: "Sydney", timezone: "Australia/Sydney" },
       { name: "Melbourne", timezone: "Australia/Melbourne" },
@@ -105,29 +114,17 @@ export default function RemoteTimezonePage() {
     let selectedCities = new Map()
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    let currentMinuteOffset = 0
-    let isDragging = false
-    let dragStartX = 0
-    let dragStartOffset = 0
-    let autoUpdate = true
-    let dialElements: HTMLElement[] = []
-    let lastSnappedMinute: number | null = null
-
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
 
     function playTickSound() {
       const oscillator = audioContext.createOscillator()
       const gainNode = audioContext.createGain()
-
       oscillator.connect(gainNode)
       gainNode.connect(audioContext.destination)
-
       oscillator.frequency.value = 800
       oscillator.type = "sine"
-
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05)
-
       oscillator.start(audioContext.currentTime)
       oscillator.stop(audioContext.currentTime + 0.05)
     }
@@ -135,16 +132,12 @@ export default function RemoteTimezonePage() {
     function playSnapSound() {
       const oscillator = audioContext.createOscillator()
       const gainNode = audioContext.createGain()
-
       oscillator.connect(gainNode)
       gainNode.connect(audioContext.destination)
-
       oscillator.frequency.value = 1200
       oscillator.type = "sine"
-
       gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08)
-
       oscillator.start(audioContext.currentTime)
       oscillator.stop(audioContext.currentTime + 0.08)
     }
@@ -158,25 +151,20 @@ export default function RemoteTimezonePage() {
             selectedCities = new Map()
             parsed.forEach((city: any) => {
               if (typeof city === "object" && city.name && city.timezone) {
-                const key = `${city.name}-${city.timezone}`
-                selectedCities.set(key, city)
+                selectedCities.set(`${city.name}-${city.timezone}`, city)
               }
             })
           }
         }
       } catch (e) {
-        console.error("Error loading saved cities:", e)
         selectedCities = new Map()
       }
     }
 
     function saveSelectedCities() {
       try {
-        const citiesArray = Array.from(selectedCities.values())
-        localStorage.setItem("selectedTimezones", JSON.stringify(citiesArray))
-      } catch (e) {
-        console.error("Error saving cities:", e)
-      }
+        localStorage.setItem("selectedTimezones", JSON.stringify(Array.from(selectedCities.values())))
+      } catch (e) {}
     }
 
     loadSelectedCities()
@@ -224,7 +212,6 @@ export default function RemoteTimezonePage() {
             </svg>
           </div>
         `
-
         item.addEventListener("click", () => {
           if (selectedCities.has(cityKey)) {
             selectedCities.delete(cityKey)
@@ -235,7 +222,6 @@ export default function RemoteTimezonePage() {
           renderCityList()
           rebuildTimelines()
         })
-
         cityList.appendChild(item)
       })
     }
@@ -263,57 +249,15 @@ export default function RemoteTimezonePage() {
 
     function getTransitionIcon(hour24: number) {
       if (hour24 === 6) {
-        return `<div class="transition-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#FDB813" strokeWidth="2">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        </div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#FDB813" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
       } else if (hour24 === 12) {
-        return `<div class="transition-icon">
-          <svg viewBox="0 0 24 24" fill="#FDB813" stroke="#FDB813" strokeWidth="2">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        </div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#FDB813" stroke="#FDB813" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
       } else if (hour24 === 18) {
-        return `<div class="transition-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        </div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
       } else if (hour24 === 22) {
-        return `<div class="transition-icon">
-          <svg viewBox="0 0 24 24" fill="#E8E8E8" stroke="#E8E8E8" strokeWidth="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#E8E8E8" stroke="#E8E8E8" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>`
       } else if (hour24 === 0) {
-        return `<div class="transition-icon">
-          <svg viewBox="0 0 24 24" fill="#C0C0C0" stroke="#C0C0C0" strokeWidth="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#C0C0C0" stroke="#C0C0C0" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>`
       }
       return null
     }
@@ -323,23 +267,17 @@ export default function RemoteTimezonePage() {
       container.className = `city-dial-container${isLocal ? " local" : ""}`
       container.dataset.timezone = city.timezone
 
-      const dialId = `dial-${city.timezone.replace(/\//g, "-")}`
-
       const now = new Date()
       const cityTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
       const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
-
       const diffMs = cityTime.getTime() - localTime.getTime()
       const diffHours = Math.round(diffMs / (1000 * 60 * 60))
-
       const cityDay = cityTime.getDate()
       const localDay = localTime.getDate()
       const dayDiff = cityDay - localDay
 
       let offsetString = ""
-      if (isLocal) {
-        offsetString = ""
-      } else {
+      if (!isLocal) {
         if (dayDiff > 0) {
           offsetString = `Tomorrow, ${diffHours >= 0 ? "+" : ""}${diffHours}h`
         } else if (dayDiff < 0) {
@@ -349,28 +287,8 @@ export default function RemoteTimezonePage() {
         }
       }
 
-      const deleteButton = isLocal
-        ? ""
-        : `
-        <button class="delete-button" data-city="${city.name}-${city.timezone}" title="Remove city">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            <line x1="10" y1="11" x2="10" y2="17"/>
-            <line x1="14" y1="11" x2="14" y2="17"/>
-          </svg>
-        </button>
-      `
-
-      const homeIcon = isLocal
-        ? `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style="margin-right: 6px; vertical-align: middle;">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-      `
-        : ""
-
+      const deleteButton = isLocal ? "" : `<button class="delete-button" data-city="${city.name}-${city.timezone}" title="Remove city"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>`
+      const homeIcon = isLocal ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style="margin-right: 6px; vertical-align: middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` : ""
       const timezoneLabel = offsetString ? `<span class="city-timezone">${offsetString}</span>` : ""
 
       container.innerHTML = `
@@ -381,7 +299,7 @@ export default function RemoteTimezonePage() {
           </div>
           <div style="display: flex; align-items: center;">
             <div class="city-current-time">
-              <div class="time-display" data-time="${city.timezone}" data-city-name="${city.name}">--:--:--</div>
+              <div class="time-display" data-time="${city.timezone}" data-city-name="${city.name}">--:--</div>
               <div class="local-time-label" data-local-time="${city.timezone}" data-city-name="${city.name}"></div>
             </div>
             ${deleteButton}
@@ -392,7 +310,6 @@ export default function RemoteTimezonePage() {
           <div class="dial-indicator"></div>
         </div>
       `
-
       return container
     }
 
@@ -404,12 +321,11 @@ export default function RemoteTimezonePage() {
 
       const now = new Date()
       const adjustedTime = new Date(now.getTime() + currentMinuteOffset * 60 * 1000)
-
       const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: timezone }))
       const cityHour = cityTime.getHours()
       const cityMinutes = cityTime.getMinutes()
 
-      for (let hourOffset = -72; hourOffset <= 72; hourOffset++) {
+      for (let hourOffset = -144; hourOffset <= 144; hourOffset++) {
         const hour24 = (cityHour + hourOffset + 2400) % 24
         const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12
         const period = hour24 < 12 ? "AM" : "PM"
@@ -417,20 +333,15 @@ export default function RemoteTimezonePage() {
 
         const hourSegment = document.createElement("div")
         hourSegment.className = `hour-segment ${category}`
-        hourSegment.dataset.hour = hourOffset.toString()
-        hourSegment.dataset.actualHour = hour24.toString()
-
         const hourLabel = document.createElement("div")
         hourLabel.className = "hour-label"
         hourLabel.textContent = hour12.toString()
         hourLabel.style.color = "#333"
         hourLabel.style.fontSize = "1rem"
-
         const periodLabel = document.createElement("div")
         periodLabel.className = "hour-period"
         periodLabel.textContent = period
         periodLabel.style.color = "#999"
-
         hourSegment.appendChild(hourLabel)
         hourSegment.appendChild(periodLabel)
 
@@ -452,19 +363,16 @@ export default function RemoteTimezonePage() {
 
         const halfHourSegment = document.createElement("div")
         halfHourSegment.className = `hour-segment half-hour ${category}`
-
         const halfHourLabel = document.createElement("div")
         halfHourLabel.className = "hour-label"
         halfHourLabel.textContent = `${hour12}:30`
         halfHourLabel.style.color = "#333"
         halfHourLabel.style.fontSize = "1rem"
-
         const halfPeriodLabel = document.createElement("div")
         halfPeriodLabel.className = "hour-period"
         halfPeriodLabel.textContent = period
         halfPeriodLabel.style.color = "#999"
         halfPeriodLabel.style.fontSize = "0.65rem"
-
         halfHourSegment.appendChild(halfHourLabel)
         halfHourSegment.appendChild(halfPeriodLabel)
 
@@ -479,14 +387,11 @@ export default function RemoteTimezonePage() {
       }
 
       const segmentWidth = 100
-      const centerSegmentIndex = 144
+      const centerSegmentIndex = 288
       const centerPosition = centerSegmentIndex * segmentWidth
-
       const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
-
       const wrapperWidth = dialWrapper.offsetWidth
       const centerOffset = wrapperWidth / 2
-
       const finalPosition = centerPosition + minuteOffset - centerOffset
 
       dialTrack.style.transform = `translateX(-${finalPosition}px)`
@@ -501,7 +406,6 @@ export default function RemoteTimezonePage() {
     }
 
     function startDrag(e: MouseEvent | TouchEvent) {
-      console.log("START DRAG - setting autoUpdate to false")
       isDragging = true
       autoUpdate = false
       dragStartX = e.type === "mousedown" ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
@@ -513,10 +417,7 @@ export default function RemoteTimezonePage() {
       dragStartOffset = match ? Number.parseFloat(match[1]) : 0
 
       dialWrapper.style.cursor = "grabbing"
-
-      document.querySelectorAll(".local-time-label").forEach((label) => {
-        label.classList.add("visible")
-      })
+      document.querySelectorAll(".local-time-label").forEach((label) => label.classList.add("visible"))
     }
 
     function drag(e: MouseEvent | TouchEvent) {
@@ -540,15 +441,13 @@ export default function RemoteTimezonePage() {
       const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
       const currentMinutes = cityTime.getMinutes()
 
-      const centerSegmentIndex = 144
+      const centerSegmentIndex = 288
       const centerPosition = centerSegmentIndex * segmentWidth
       const currentMinutesPixelOffset = (currentMinutes / 60) * 200
       const actualCurrentPosition = centerPosition + currentMinutesPixelOffset
 
       const trackPositionAtIndicator = -newOffset + centerOfWrapper
-
       const pixelOffset = trackPositionAtIndicator - actualCurrentPosition
-
       const minuteDiff = (pixelOffset / 200) * 60
 
       currentMinuteOffset = Math.round(minuteDiff)
@@ -567,21 +466,16 @@ export default function RemoteTimezonePage() {
 
     function stopDrag() {
       if (isDragging) {
-        console.log("STOP DRAG - autoUpdate remains false, currentMinuteOffset:", currentMinuteOffset)
         isDragging = false
         dialElements.forEach((dialWrapper) => {
           dialWrapper.style.cursor = "grab"
         })
 
-        document.querySelectorAll(".local-time-label").forEach((label) => {
-          label.classList.remove("visible")
-        })
+        document.querySelectorAll(".local-time-label").forEach((label) => label.classList.remove("visible"))
 
         playSnapSound()
         lastSnappedMinute = null
-        // autoUpdate stays false, currentMinuteOffset is maintained
-        // Dial stays at the dragged position - NO SNAPPING
-        console.log("After stopDrag - autoUpdate:", autoUpdate, "isDragging:", isDragging)
+        // Critical: autoUpdate stays false, dial stays where dragged
       }
     }
 
@@ -599,17 +493,10 @@ export default function RemoteTimezonePage() {
     document.getElementById("resetButton")?.addEventListener("click", resetToCurrentTime)
 
     function updateDialPositions() {
-      if (isDragging || dialElements.length === 0) return
+      if (isDragging || dialElements.length === 0 || !autoUpdate) return
 
-      if (!autoUpdate) {
-        console.log("updateDialPositions SKIPPED - autoUpdate is false")
-        return
-      }
-
-      console.log("updateDialPositions RUNNING - autoUpdate is true")
       dialElements.forEach((dialWrapper) => {
         const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
-
         const timezone = dialWrapper.dataset.dial
         if (!timezone) return
 
@@ -619,14 +506,11 @@ export default function RemoteTimezonePage() {
         const cityMinutes = cityTime.getMinutes()
 
         const segmentWidth = 100
-        const centerSegmentIndex = 144
+        const centerSegmentIndex = 288
         const centerPosition = centerSegmentIndex * segmentWidth
-
         const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
-
         const wrapperWidth = dialWrapper.offsetWidth
         const centerOffset = wrapperWidth / 2
-
         const finalPosition = centerPosition + minuteOffset - centerOffset
 
         dialTrack.style.transform = `translateX(-${finalPosition}px)`
@@ -644,7 +528,6 @@ export default function RemoteTimezonePage() {
 
       allCities.forEach((city) => {
         const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: city.timezone }))
-
         const timeElements = document.querySelectorAll(`[data-time="${city.timezone}"][data-city-name="${city.name}"]`)
 
         timeElements.forEach((timeElement) => {
@@ -697,24 +580,12 @@ export default function RemoteTimezonePage() {
         initializeDial(dialWrapper, city.timezone)
       })
 
-      const tryUpdate = (attempt = 0): void => {
-        if (attempt > 5) return
-
-        requestAnimationFrame(() => {
-          dialElements.forEach((el) => el.offsetHeight)
-
-          const firstWidth = dialElements[0]?.offsetWidth || 0
-
-          if (firstWidth > 0) {
-            updateDialPositions()
-            updateAllTimes()
-          } else {
-            setTimeout(() => tryUpdate(attempt + 1), 100)
-          }
-        })
-      }
-
-      tryUpdate()
+      setTimeout(() => {
+        if (dialElements[0]?.offsetWidth) {
+          updateDialPositions()
+          updateAllTimes()
+        }
+      }, 100)
     }
 
     const updateInterval = setInterval(() => {
@@ -722,9 +593,7 @@ export default function RemoteTimezonePage() {
       updateAllTimes()
     }, 1000)
 
-    window.addEventListener("resize", () => {
-      updateDialPositions()
-    })
+    window.addEventListener("resize", updateDialPositions)
 
     rebuildTimelines()
 
