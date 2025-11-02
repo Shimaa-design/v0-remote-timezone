@@ -283,8 +283,15 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   gap: 15px;
+  min-height: 60px;
+}
+
+.city-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .city-name {
@@ -308,24 +315,27 @@ h1 {
 
 .city-current-time {
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .time-display {
   font-size: 1.2rem;
   font-weight: bold;
   color: #667eea;
+  line-height: 1.2em;
 }
 
 .local-time-label {
   font-size: 0.85rem;
   color: #999;
   margin-top: 2px;
-  visibility: hidden;
-  height: 1.2em;
+  line-height: 1.2em;
 }
 
-.local-time-label.visible {
-  visibility: visible;
+.local-time-label:empty {
+  display: none;
 }
 
 .dial-wrapper {

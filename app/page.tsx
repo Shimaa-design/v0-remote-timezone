@@ -299,7 +299,7 @@ export default function RemoteTimezonePage() {
             </div>
             ${timezoneLabel}
           </div>
-          <div style="display: flex; align-items: center;">
+          <div class="city-header-right">
             <div class="city-current-time">
               <div class="time-display" data-time="${city.timezone}" data-city-name="${city.name}">--:--</div>
               <div class="local-time-label" data-local-time="${city.timezone}" data-city-name="${city.name}"></div>
@@ -419,7 +419,6 @@ export default function RemoteTimezonePage() {
       dragStartOffset = match ? Number.parseFloat(match[1]) : 0
 
       dialWrapper.style.cursor = "grabbing"
-      document.querySelectorAll(".local-time-label").forEach((label) => label.classList.add("visible"))
     }
 
     function drag(e: MouseEvent | TouchEvent) {
@@ -472,8 +471,6 @@ export default function RemoteTimezonePage() {
         dialElements.forEach((dialWrapper) => {
           dialWrapper.style.cursor = "grab"
         })
-
-        document.querySelectorAll(".local-time-label").forEach((label) => label.classList.remove("visible"))
 
         playSnapSound()
         lastSnappedMinute = null
@@ -540,12 +537,12 @@ export default function RemoteTimezonePage() {
           })
         })
 
+        const localTimeElements = document.querySelectorAll(
+          `[data-local-time="${city.timezone}"][data-city-name="${city.name}"]`,
+        )
+
         if (currentMinuteOffset !== 0) {
           const actualLocalTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
-          const localTimeElements = document.querySelectorAll(
-            `[data-local-time="${city.timezone}"][data-city-name="${city.name}"]`,
-          )
-
           localTimeElements.forEach((localTimeElement) => {
             localTimeElement.textContent =
               "Local: " +
@@ -554,6 +551,10 @@ export default function RemoteTimezonePage() {
                 minute: "2-digit",
                 hour12: true,
               })
+          })
+        } else {
+          localTimeElements.forEach((localTimeElement) => {
+            localTimeElement.textContent = ""
           })
         }
       })
