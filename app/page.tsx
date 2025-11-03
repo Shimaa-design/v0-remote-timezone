@@ -644,12 +644,10 @@ export default function RemoteTimezonePage() {
         const hourLabel = document.createElement("div")
         hourLabel.className = "hour-label"
         hourLabel.textContent = hour12.toString()
-        hourLabel.style.color = "#333"
         hourLabel.style.fontSize = "1rem"
         const periodLabel = document.createElement("div")
         periodLabel.className = "hour-period"
         periodLabel.textContent = period
-        periodLabel.style.color = "#999"
         hourSegment.appendChild(hourLabel)
         hourSegment.appendChild(periodLabel)
 
@@ -674,12 +672,10 @@ export default function RemoteTimezonePage() {
         const halfHourLabel = document.createElement("div")
         halfHourLabel.className = "hour-label"
         halfHourLabel.textContent = `${hour12}:30`
-        halfHourLabel.style.color = "#333"
         halfHourLabel.style.fontSize = "1rem"
         const halfPeriodLabel = document.createElement("div")
         halfPeriodLabel.className = "hour-period"
         halfPeriodLabel.textContent = period
-        halfPeriodLabel.style.color = "#999"
         halfPeriodLabel.style.fontSize = "0.65rem"
         halfHourSegment.appendChild(halfHourLabel)
         halfHourSegment.appendChild(halfPeriodLabel)
