@@ -613,7 +613,7 @@ export default function RemoteTimezonePage() {
     <>
       <div className="container">
         <div className="header-bar">
-          <h1 className="font-serif tracking-normal font-semibold text-xl leading-6">🌐 Remote Timezone</h1>
+          <h1 className="font-serif tracking-normal font-semibold text-xl leading-6">☀️ Remote Timezone</h1>
           <div className="header-buttons">
             <button className="icon-button" id="resetButton" title="Reset to Current Time">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
