@@ -174,6 +174,7 @@ export default function RemoteTimezonePage() {
     const closePanel = document.getElementById("closePanel")
     const overlay = document.getElementById("overlay")
     const container = document.querySelector(".container")
+    const citySearchInput = document.getElementById("citySearch") as HTMLInputElement
 
     addCityButton?.addEventListener("click", () => {
       sidePanel?.classList.add("open")
@@ -186,20 +187,37 @@ export default function RemoteTimezonePage() {
       sidePanel?.classList.remove("open")
       overlay?.classList.remove("active")
       container?.classList.remove("panel-open")
+      if (citySearchInput) citySearchInput.value = ""
     })
 
     overlay?.addEventListener("click", () => {
       sidePanel?.classList.remove("open")
       overlay?.classList.remove("active")
       container?.classList.remove("panel-open")
+      if (citySearchInput) citySearchInput.value = ""
     })
 
-    function renderCityList() {
+    citySearchInput?.addEventListener("input", (e) => {
+      const searchQuery = (e.target as HTMLInputElement).value
+      renderCityList(searchQuery)
+    })
+
+    function renderCityList(searchQuery = "") {
       const cityList = document.getElementById("cityList")
       if (!cityList) return
       cityList.innerHTML = ""
 
-      cities.forEach((city) => {
+      // Filter cities based on search query
+      const filteredCities = cities.filter((city) => {
+        if (!searchQuery) return true
+        const query = searchQuery.toLowerCase()
+        return (
+          city.name.toLowerCase().includes(query) ||
+          city.country.toLowerCase().includes(query)
+        )
+      })
+
+      filteredCities.forEach((city) => {
         const cityKey = `${city.name}-${city.timezone}`
         const isSelected = selectedCities.has(cityKey)
 
@@ -231,7 +249,7 @@ export default function RemoteTimezonePage() {
             selectedCities.set(cityKey, city)
           }
           saveSelectedCities()
-          renderCityList()
+          renderCityList(searchQuery)
           rebuildTimelines()
         })
         cityList.appendChild(item)
@@ -656,6 +674,14 @@ export default function RemoteTimezonePage() {
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
+        </div>
+        <div className="side-panel-search">
+          <input
+            type="text"
+            id="citySearch"
+            className="city-search-input"
+            placeholder="Search cities..."
+          />
         </div>
         <div className="side-panel-body">
           <div className="city-list" id="cityList"></div>

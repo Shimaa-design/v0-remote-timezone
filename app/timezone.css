@@ -54,6 +54,30 @@ body {
   font-size: 1.5rem;
 }
 
+.side-panel-search {
+  padding: 15px 25px;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+}
+
+.city-search-input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.city-search-input:focus {
+  border-color: #667eea;
+}
+
+.city-search-input::placeholder {
+  color: #999;
+}
+
 .side-panel-body {
   overflow-y: auto;
   flex: 1;
