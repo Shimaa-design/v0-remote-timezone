@@ -478,7 +478,7 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid #d0d0d0;
   flex-shrink: 0;
   position: relative;
 }
@@ -489,7 +489,7 @@ h1 {
 
 .hour-segment.half-hour {
   width: 100px;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid #d0d0d0;
 }
 
 .dark .hour-segment.half-hour {
@@ -504,9 +504,17 @@ h1 {
   background: #d0d0d0;
 }
 
+.dark .minute-marker {
+  background: #444;
+}
+
 .minute-marker.major {
   height: 20px;
   background: #b0b0b0;
+}
+
+.dark .minute-marker.major {
+  background: #444;
 }
 
 .transition-icon {
