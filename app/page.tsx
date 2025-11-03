@@ -22,94 +22,142 @@ export default function RemoteTimezonePage() {
 
     const cities = [
       // North America
-      { name: "New York", country: "USA", timezone: "America/New_York" },
-      { name: "Los Angeles", country: "USA", timezone: "America/Los_Angeles" },
-      { name: "Chicago", country: "USA", timezone: "America/Chicago" },
-      { name: "Toronto", country: "Canada", timezone: "America/Toronto" },
-      { name: "Vancouver", country: "Canada", timezone: "America/Vancouver" },
-      { name: "Mexico City", country: "Mexico", timezone: "America/Mexico_City" },
-      { name: "Montreal", country: "Canada", timezone: "America/Montreal" },
-      { name: "San Francisco", country: "USA", timezone: "America/Los_Angeles" },
-      { name: "Miami", country: "USA", timezone: "America/New_York" },
-      { name: "Denver", country: "USA", timezone: "America/Denver" },
-      { name: "Seattle", country: "USA", timezone: "America/Los_Angeles" },
-      { name: "Boston", country: "USA", timezone: "America/New_York" },
-      { name: "Phoenix", country: "USA", timezone: "America/Phoenix" },
-      { name: "Dallas", country: "USA", timezone: "America/Chicago" },
-      { name: "Atlanta", country: "USA", timezone: "America/New_York" },
-      { name: "Honolulu", country: "USA", timezone: "Pacific/Honolulu" },
-      { name: "Anchorage", country: "USA", timezone: "America/Anchorage" },
+      { name: "New York", country: "USA", timezone: "America/New_York", lat: 40.7128, lng: -74.0060 },
+      { name: "Los Angeles", country: "USA", timezone: "America/Los_Angeles", lat: 34.0522, lng: -118.2437 },
+      { name: "Chicago", country: "USA", timezone: "America/Chicago", lat: 41.8781, lng: -87.6298 },
+      { name: "Toronto", country: "Canada", timezone: "America/Toronto", lat: 43.6532, lng: -79.3832 },
+      { name: "Vancouver", country: "Canada", timezone: "America/Vancouver", lat: 49.2827, lng: -123.1207 },
+      { name: "Mexico City", country: "Mexico", timezone: "America/Mexico_City", lat: 19.4326, lng: -99.1332 },
+      { name: "Montreal", country: "Canada", timezone: "America/Montreal", lat: 45.5017, lng: -73.5673 },
+      { name: "San Francisco", country: "USA", timezone: "America/Los_Angeles", lat: 37.7749, lng: -122.4194 },
+      { name: "Miami", country: "USA", timezone: "America/New_York", lat: 25.7617, lng: -80.1918 },
+      { name: "Denver", country: "USA", timezone: "America/Denver", lat: 39.7392, lng: -104.9903 },
+      { name: "Seattle", country: "USA", timezone: "America/Los_Angeles", lat: 47.6062, lng: -122.3321 },
+      { name: "Boston", country: "USA", timezone: "America/New_York", lat: 42.3601, lng: -71.0589 },
+      { name: "Phoenix", country: "USA", timezone: "America/Phoenix", lat: 33.4484, lng: -112.0740 },
+      { name: "Dallas", country: "USA", timezone: "America/Chicago", lat: 32.7767, lng: -96.7970 },
+      { name: "Atlanta", country: "USA", timezone: "America/New_York", lat: 33.7490, lng: -84.3880 },
+      { name: "Honolulu", country: "USA", timezone: "Pacific/Honolulu", lat: 21.3099, lng: -157.8581 },
+      { name: "Anchorage", country: "USA", timezone: "America/Anchorage", lat: 61.2181, lng: -149.9003 },
       // South America
-      { name: "São Paulo", country: "Brazil", timezone: "America/Sao_Paulo" },
-      { name: "Buenos Aires", country: "Argentina", timezone: "America/Argentina/Buenos_Aires" },
-      { name: "Rio de Janeiro", country: "Brazil", timezone: "America/Sao_Paulo" },
-      { name: "Lima", country: "Peru", timezone: "America/Lima" },
-      { name: "Bogotá", country: "Colombia", timezone: "America/Bogota" },
-      { name: "Santiago", country: "Chile", timezone: "America/Santiago" },
-      { name: "Caracas", country: "Venezuela", timezone: "America/Caracas" },
+      { name: "São Paulo", country: "Brazil", timezone: "America/Sao_Paulo", lat: -23.5505, lng: -46.6333 },
+      { name: "Buenos Aires", country: "Argentina", timezone: "America/Argentina/Buenos_Aires", lat: -34.6037, lng: -58.3816 },
+      { name: "Rio de Janeiro", country: "Brazil", timezone: "America/Sao_Paulo", lat: -22.9068, lng: -43.1729 },
+      { name: "Lima", country: "Peru", timezone: "America/Lima", lat: -12.0464, lng: -77.0428 },
+      { name: "Bogotá", country: "Colombia", timezone: "America/Bogota", lat: 4.7110, lng: -74.0721 },
+      { name: "Santiago", country: "Chile", timezone: "America/Santiago", lat: -33.4489, lng: -70.6693 },
+      { name: "Caracas", country: "Venezuela", timezone: "America/Caracas", lat: 10.4806, lng: -66.9036 },
       // Europe
-      { name: "London", country: "UK", timezone: "Europe/London" },
-      { name: "Paris", country: "France", timezone: "Europe/Paris" },
-      { name: "Berlin", country: "Germany", timezone: "Europe/Berlin" },
-      { name: "Madrid", country: "Spain", timezone: "Europe/Madrid" },
-      { name: "Rome", country: "Italy", timezone: "Europe/Rome" },
-      { name: "Amsterdam", country: "Netherlands", timezone: "Europe/Amsterdam" },
-      { name: "Brussels", country: "Belgium", timezone: "Europe/Brussels" },
-      { name: "Vienna", country: "Austria", timezone: "Europe/Vienna" },
-      { name: "Prague", country: "Czechia", timezone: "Europe/Prague" },
-      { name: "Warsaw", country: "Poland", timezone: "Europe/Warsaw" },
-      { name: "Stockholm", country: "Sweden", timezone: "Europe/Stockholm" },
-      { name: "Copenhagen", country: "Denmark", timezone: "Europe/Copenhagen" },
-      { name: "Oslo", country: "Norway", timezone: "Europe/Oslo" },
-      { name: "Helsinki", country: "Finland", timezone: "Europe/Helsinki" },
-      { name: "Moscow", country: "Russia", timezone: "Europe/Moscow" },
-      { name: "Istanbul", country: "Turkey", timezone: "Europe/Istanbul" },
-      { name: "Athens", country: "Greece", timezone: "Europe/Athens" },
-      { name: "Lisbon", country: "Portugal", timezone: "Europe/Lisbon" },
-      { name: "Dublin", country: "Ireland", timezone: "Europe/Dublin" },
-      { name: "Zurich", country: "Switzerland", timezone: "Europe/Zurich" },
+      { name: "London", country: "UK", timezone: "Europe/London", lat: 51.5074, lng: -0.1278 },
+      { name: "Paris", country: "France", timezone: "Europe/Paris", lat: 48.8566, lng: 2.3522 },
+      { name: "Berlin", country: "Germany", timezone: "Europe/Berlin", lat: 52.5200, lng: 13.4050 },
+      { name: "Madrid", country: "Spain", timezone: "Europe/Madrid", lat: 40.4168, lng: -3.7038 },
+      { name: "Rome", country: "Italy", timezone: "Europe/Rome", lat: 41.9028, lng: 12.4964 },
+      { name: "Amsterdam", country: "Netherlands", timezone: "Europe/Amsterdam", lat: 52.3676, lng: 4.9041 },
+      { name: "Brussels", country: "Belgium", timezone: "Europe/Brussels", lat: 50.8503, lng: 4.3517 },
+      { name: "Vienna", country: "Austria", timezone: "Europe/Vienna", lat: 48.2082, lng: 16.3738 },
+      { name: "Prague", country: "Czechia", timezone: "Europe/Prague", lat: 50.0755, lng: 14.4378 },
+      { name: "Warsaw", country: "Poland", timezone: "Europe/Warsaw", lat: 52.2297, lng: 21.0122 },
+      { name: "Stockholm", country: "Sweden", timezone: "Europe/Stockholm", lat: 59.3293, lng: 18.0686 },
+      { name: "Copenhagen", country: "Denmark", timezone: "Europe/Copenhagen", lat: 55.6761, lng: 12.5683 },
+      { name: "Oslo", country: "Norway", timezone: "Europe/Oslo", lat: 59.9139, lng: 10.7522 },
+      { name: "Helsinki", country: "Finland", timezone: "Europe/Helsinki", lat: 60.1695, lng: 24.9354 },
+      { name: "Moscow", country: "Russia", timezone: "Europe/Moscow", lat: 55.7558, lng: 37.6173 },
+      { name: "Istanbul", country: "Turkey", timezone: "Europe/Istanbul", lat: 41.0082, lng: 28.9784 },
+      { name: "Athens", country: "Greece", timezone: "Europe/Athens", lat: 37.9838, lng: 23.7275 },
+      { name: "Lisbon", country: "Portugal", timezone: "Europe/Lisbon", lat: 38.7223, lng: -9.1393 },
+      { name: "Dublin", country: "Ireland", timezone: "Europe/Dublin", lat: 53.3498, lng: -6.2603 },
+      { name: "Zurich", country: "Switzerland", timezone: "Europe/Zurich", lat: 47.3769, lng: 8.5417 },
       // Asia
-      { name: "Tokyo", country: "Japan", timezone: "Asia/Tokyo" },
-      { name: "Hong Kong", country: "Hong Kong", timezone: "Asia/Hong_Kong" },
-      { name: "Singapore", country: "Singapore", timezone: "Asia/Singapore" },
-      { name: "Dubai", country: "UAE", timezone: "Asia/Dubai" },
-      { name: "Mumbai", country: "India", timezone: "Asia/Kolkata" },
-      { name: "Shanghai", country: "China", timezone: "Asia/Shanghai" },
-      { name: "Beijing", country: "China", timezone: "Asia/Shanghai" },
-      { name: "Bangkok", country: "Thailand", timezone: "Asia/Bangkok" },
-      { name: "Seoul", country: "South Korea", timezone: "Asia/Seoul" },
-      { name: "Manila", country: "Philippines", timezone: "Asia/Manila" },
-      { name: "Jakarta", country: "Indonesia", timezone: "Asia/Jakarta" },
-      { name: "Kuala Lumpur", country: "Malaysia", timezone: "Asia/Kuala_Lumpur" },
-      { name: "Delhi", country: "India", timezone: "Asia/Kolkata" },
-      { name: "Bangalore", country: "India", timezone: "Asia/Kolkata" },
-      { name: "Karachi", country: "Pakistan", timezone: "Asia/Karachi" },
-      { name: "Dhaka", country: "Bangladesh", timezone: "Asia/Dhaka" },
-      { name: "Tehran", country: "Iran", timezone: "Asia/Tehran" },
-      { name: "Ramallah", country: "Palestine", timezone: "Asia/Jerusalem" },
-      { name: "Riyadh", country: "Saudi Arabia", timezone: "Asia/Riyadh" },
-      { name: "Doha", country: "Qatar", timezone: "Asia/Qatar" },
-      { name: "Abu Dhabi", country: "UAE", timezone: "Asia/Dubai" },
-      { name: "Taipei", country: "Taiwan", timezone: "Asia/Taipei" },
-      { name: "Hanoi", country: "Vietnam", timezone: "Asia/Ho_Chi_Minh" },
+      { name: "Tokyo", country: "Japan", timezone: "Asia/Tokyo", lat: 35.6762, lng: 139.6503 },
+      { name: "Hong Kong", country: "Hong Kong", timezone: "Asia/Hong_Kong", lat: 22.3193, lng: 114.1694 },
+      { name: "Singapore", country: "Singapore", timezone: "Asia/Singapore", lat: 1.3521, lng: 103.8198 },
+      { name: "Dubai", country: "UAE", timezone: "Asia/Dubai", lat: 25.2048, lng: 55.2708 },
+      { name: "Mumbai", country: "India", timezone: "Asia/Kolkata", lat: 19.0760, lng: 72.8777 },
+      { name: "Shanghai", country: "China", timezone: "Asia/Shanghai", lat: 31.2304, lng: 121.4737 },
+      { name: "Beijing", country: "China", timezone: "Asia/Shanghai", lat: 39.9042, lng: 116.4074 },
+      { name: "Bangkok", country: "Thailand", timezone: "Asia/Bangkok", lat: 13.7563, lng: 100.5018 },
+      { name: "Seoul", country: "South Korea", timezone: "Asia/Seoul", lat: 37.5665, lng: 126.9780 },
+      { name: "Manila", country: "Philippines", timezone: "Asia/Manila", lat: 14.5995, lng: 120.9842 },
+      { name: "Jakarta", country: "Indonesia", timezone: "Asia/Jakarta", lat: -6.2088, lng: 106.8456 },
+      { name: "Kuala Lumpur", country: "Malaysia", timezone: "Asia/Kuala_Lumpur", lat: 3.1390, lng: 101.6869 },
+      { name: "Delhi", country: "India", timezone: "Asia/Kolkata", lat: 28.7041, lng: 77.1025 },
+      { name: "Bangalore", country: "India", timezone: "Asia/Kolkata", lat: 12.9716, lng: 77.5946 },
+      { name: "Karachi", country: "Pakistan", timezone: "Asia/Karachi", lat: 24.8607, lng: 67.0011 },
+      { name: "Dhaka", country: "Bangladesh", timezone: "Asia/Dhaka", lat: 23.8103, lng: 90.4125 },
+      { name: "Tehran", country: "Iran", timezone: "Asia/Tehran", lat: 35.6892, lng: 51.3890 },
+      { name: "Ramallah", country: "Palestine", timezone: "Asia/Jerusalem", lat: 31.9038, lng: 35.2034 },
+      { name: "Riyadh", country: "Saudi Arabia", timezone: "Asia/Riyadh", lat: 24.7136, lng: 46.6753 },
+      { name: "Doha", country: "Qatar", timezone: "Asia/Qatar", lat: 25.2854, lng: 51.5310 },
+      { name: "Abu Dhabi", country: "UAE", timezone: "Asia/Dubai", lat: 24.4539, lng: 54.3773 },
+      { name: "Taipei", country: "Taiwan", timezone: "Asia/Taipei", lat: 25.0330, lng: 121.5654 },
+      { name: "Hanoi", country: "Vietnam", timezone: "Asia/Ho_Chi_Minh", lat: 21.0285, lng: 105.8542 },
       // Africa
-      { name: "Cairo", country: "Egypt", timezone: "Africa/Cairo" },
-      { name: "Lagos", country: "Nigeria", timezone: "Africa/Lagos" },
-      { name: "Johannesburg", country: "South Africa", timezone: "Africa/Johannesburg" },
-      { name: "Nairobi", country: "Kenya", timezone: "Africa/Nairobi" },
-      { name: "Casablanca", country: "Morocco", timezone: "Africa/Casablanca" },
-      { name: "Accra", country: "Ghana", timezone: "Africa/Accra" },
-      { name: "Algiers", country: "Algeria", timezone: "Africa/Algiers" },
-      { name: "Tunis", country: "Tunisia", timezone: "Africa/Tunis" },
+      { name: "Cairo", country: "Egypt", timezone: "Africa/Cairo", lat: 30.0444, lng: 31.2357 },
+      { name: "Lagos", country: "Nigeria", timezone: "Africa/Lagos", lat: 6.5244, lng: 3.3792 },
+      { name: "Johannesburg", country: "South Africa", timezone: "Africa/Johannesburg", lat: -26.2041, lng: 28.0473 },
+      { name: "Nairobi", country: "Kenya", timezone: "Africa/Nairobi", lat: -1.2864, lng: 36.8172 },
+      { name: "Casablanca", country: "Morocco", timezone: "Africa/Casablanca", lat: 33.5731, lng: -7.5898 },
+      { name: "Accra", country: "Ghana", timezone: "Africa/Accra", lat: 5.6037, lng: -0.1870 },
+      { name: "Algiers", country: "Algeria", timezone: "Africa/Algiers", lat: 36.7538, lng: 3.0588 },
+      { name: "Tunis", country: "Tunisia", timezone: "Africa/Tunis", lat: 36.8065, lng: 10.1815 },
       // Oceania
-      { name: "Sydney", country: "Australia", timezone: "Australia/Sydney" },
-      { name: "Melbourne", country: "Australia", timezone: "Australia/Melbourne" },
-      { name: "Brisbane", country: "Australia", timezone: "Australia/Brisbane" },
-      { name: "Perth", country: "Australia", timezone: "Australia/Perth" },
-      { name: "Auckland", country: "New Zealand", timezone: "Pacific/Auckland" },
-      { name: "Wellington", country: "New Zealand", timezone: "Pacific/Auckland" },
-      { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji" },
+      { name: "Sydney", country: "Australia", timezone: "Australia/Sydney", lat: -33.8688, lng: 151.2093 },
+      { name: "Melbourne", country: "Australia", timezone: "Australia/Melbourne", lat: -37.8136, lng: 144.9631 },
+      { name: "Brisbane", country: "Australia", timezone: "Australia/Brisbane", lat: -27.4698, lng: 153.0251 },
+      { name: "Perth", country: "Australia", timezone: "Australia/Perth", lat: -31.9505, lng: 115.8605 },
+      { name: "Auckland", country: "New Zealand", timezone: "Pacific/Auckland", lat: -36.8485, lng: 174.7633 },
+      { name: "Wellington", country: "New Zealand", timezone: "Pacific/Auckland", lat: -41.2865, lng: 174.7762 },
+      { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji", lat: -17.7134, lng: 178.0650 },
     ]
+
+    // Calculate distance between two coordinates using Haversine formula
+    function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+      const R = 6371 // Earth's radius in kilometers
+      const dLat = (lat2 - lat1) * Math.PI / 180
+      const dLng = (lng2 - lng1) * Math.PI / 180
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      return R * c
+    }
+
+    // Find nearest cities based on coordinates
+    function findNearestCities(lat: number, lng: number, limit: number = 5) {
+      return cities
+        .map(city => ({
+          ...city,
+          distance: calculateDistance(lat, lng, city.lat, city.lng)
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, limit)
+    }
+
+    // Simple geocoding fallback - tries to extract coordinates from common city searches
+    function tryGeocodeSearch(searchQuery: string): { lat: number, lng: number } | null {
+      // For Edinburgh, Scotland - hardcoded as example
+      const knownCities: { [key: string]: { lat: number, lng: number } } = {
+        "edinburgh": { lat: 55.9533, lng: -3.1883 },
+        "glasgow": { lat: 55.8642, lng: -4.2518 },
+        "manchester": { lat: 53.4808, lng: -2.2426 },
+        "birmingham": { lat: 52.4862, lng: -1.8904 },
+        "liverpool": { lat: 53.4084, lng: -2.9916 },
+        "leeds": { lat: 53.8008, lng: -1.5491 },
+        "bristol": { lat: 51.4545, lng: -2.5879 },
+        "cardiff": { lat: 51.4816, lng: -3.1791 },
+        "belfast": { lat: 54.5973, lng: -5.9301 },
+      }
+
+      const queryLower = searchQuery.toLowerCase()
+      for (const [cityName, coords] of Object.entries(knownCities)) {
+        if (queryLower.includes(cityName)) {
+          return coords
+        }
+      }
+      return null
+    }
 
     const countryFlags: { [key: string]: string } = {
       "USA": "🇺🇸",
@@ -299,7 +347,52 @@ export default function RemoteTimezonePage() {
         )
       })
 
+      // If no exact match, try to find nearest cities
       if (filteredCities.length === 0) {
+        const coords = tryGeocodeSearch(query)
+        if (coords) {
+          const nearestCities = findNearestCities(coords.lat, coords.lng, 5)
+
+          floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No exact match. Showing nearest cities:</div>'
+
+          nearestCities.forEach((cityWithDistance) => {
+            const city = cityWithDistance
+            const offset = getTimezoneOffset(city.timezone)
+            const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+            const cityKey = `${city.name}-${city.timezone}`
+            const isAlreadySelected = selectedCities.has(cityKey)
+            const flag = countryFlags[city.country] || "🏳️"
+            const distanceKm = Math.round(cityWithDistance.distance)
+
+            const resultItem = document.createElement("div")
+            resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
+            resultItem.innerHTML = `
+              <div class="floating-search-result-main">
+                <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
+                <div class="floating-search-result-timezone">${offsetDisplay}</div>
+              </div>
+              ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
+            `
+
+            if (!isAlreadySelected) {
+              resultItem.addEventListener("click", () => {
+                selectedCities.set(cityKey, city)
+                saveSelectedCities()
+                rebuildTimelines()
+                floatingSearchInput.value = ""
+                floatingSearchResults.innerHTML = ""
+                floatingSearchResults.style.display = "none"
+                renderCityList() // Update side panel if open
+              })
+            }
+
+            floatingSearchResults.appendChild(resultItem)
+          })
+
+          floatingSearchResults.style.display = "block"
+          return
+        }
+
         floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No cities found</div>'
         floatingSearchResults.style.display = "block"
         return
@@ -371,7 +464,7 @@ export default function RemoteTimezonePage() {
       cityList.innerHTML = ""
 
       // Filter cities based on search query
-      const filteredCities = cities.filter((city) => {
+      let filteredCities = cities.filter((city) => {
         if (!searchQuery) return true
         const query = searchQuery.toLowerCase()
         return (
@@ -379,6 +472,22 @@ export default function RemoteTimezonePage() {
           city.country.toLowerCase().includes(query)
         )
       })
+
+      // If no match and search query exists, try to find nearest cities
+      let isShowingNearest = false
+      if (filteredCities.length === 0 && searchQuery.trim()) {
+        const coords = tryGeocodeSearch(searchQuery)
+        if (coords) {
+          filteredCities = findNearestCities(coords.lat, coords.lng, 10)
+          isShowingNearest = true
+
+          // Add header message
+          const header = document.createElement("div")
+          header.style.cssText = "padding: 12px; color: #666; font-size: 0.9em; background: #f9f9f9; border-radius: 4px; margin-bottom: 8px;"
+          header.textContent = "No exact match. Showing nearest cities:"
+          cityList.appendChild(header)
+        }
+      }
 
       filteredCities.forEach((city) => {
         const cityKey = `${city.name}-${city.timezone}`
@@ -394,9 +503,12 @@ export default function RemoteTimezonePage() {
 
         const item = document.createElement("div")
         item.className = `city-list-item${isSelected ? " selected" : ""}`
+        const distanceInfo = isShowingNearest && 'distance' in city
+          ? ` <span style="color: #999; font-size: 0.85em;">(~${Math.round((city as any).distance)}km)</span>`
+          : ""
         item.innerHTML = `
           <div class="city-list-item-info">
-            <div class="city-list-item-name">${city.name}, ${city.country}</div>
+            <div class="city-list-item-name">${city.name}, ${city.country}${distanceInfo}</div>
             <div class="city-list-item-timezone">${offsetString}</div>
           </div>
           <div class="checkmark">
