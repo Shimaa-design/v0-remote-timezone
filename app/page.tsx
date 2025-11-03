@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import "./timezone.css"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function RemoteTimezonePage() {
   const initializedRef = useRef(false)
@@ -534,12 +535,10 @@ export default function RemoteTimezonePage() {
         const hourLabel = document.createElement("div")
         hourLabel.className = "hour-label"
         hourLabel.textContent = hour12.toString()
-        hourLabel.style.color = "#333"
         hourLabel.style.fontSize = "1rem"
         const periodLabel = document.createElement("div")
         periodLabel.className = "hour-period"
         periodLabel.textContent = period
-        periodLabel.style.color = "#999"
         hourSegment.appendChild(hourLabel)
         hourSegment.appendChild(periodLabel)
 
@@ -564,12 +563,10 @@ export default function RemoteTimezonePage() {
         const halfHourLabel = document.createElement("div")
         halfHourLabel.className = "hour-label"
         halfHourLabel.textContent = `${hour12}:30`
-        halfHourLabel.style.color = "#333"
         halfHourLabel.style.fontSize = "1rem"
         const halfPeriodLabel = document.createElement("div")
         halfPeriodLabel.className = "hour-period"
         halfPeriodLabel.textContent = period
-        halfPeriodLabel.style.color = "#999"
         halfPeriodLabel.style.fontSize = "0.65rem"
         halfHourSegment.appendChild(halfHourLabel)
         halfHourSegment.appendChild(halfPeriodLabel)
@@ -811,6 +808,7 @@ export default function RemoteTimezonePage() {
         <div className="header-bar">
           <h1 className="font-serif tracking-normal font-semibold text-xl leading-6">☀️ Remote Timezone</h1>
           <div className="header-buttons">
+            <ThemeToggle />
             <button className="icon-button" id="resetButton" title="Reset to Current Time">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
