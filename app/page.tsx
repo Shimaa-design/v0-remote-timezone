@@ -202,10 +202,22 @@ export default function RemoteTimezonePage() {
       cities.forEach((city) => {
         const cityKey = `${city.name}-${city.timezone}`
         const isSelected = selectedCities.has(cityKey)
+
+        // Calculate timezone offset
+        const now = new Date()
+        const cityTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
+        const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
+        const diffMs = cityTime.getTime() - localTime.getTime()
+        const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+        const offsetString = diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}h` : "Local"
+
         const item = document.createElement("div")
         item.className = `city-list-item${isSelected ? " selected" : ""}`
         item.innerHTML = `
-          <div class="city-list-item-name">${city.name}</div>
+          <div class="city-list-item-info">
+            <div class="city-list-item-name">${city.name}</div>
+            <div class="city-list-item-timezone">${offsetString}</div>
+          </div>
           <div class="checkmark">
             <svg viewBox="0 0 24 24" fill="none">
               <polyline points="20 6 9 17 4 12"/>

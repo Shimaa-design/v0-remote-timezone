@@ -203,9 +203,22 @@ h1 {
   background: #f5f5f5;
 }
 
+.city-list-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .city-list-item-name {
   font-size: 1rem;
   color: #333;
+  font-weight: 500;
+}
+
+.city-list-item-timezone {
+  font-size: 0.85rem;
+  color: #667eea;
+  font-weight: 500;
 }
 
 .checkmark {
