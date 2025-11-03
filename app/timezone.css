@@ -351,6 +351,61 @@ h1 {
   transform: scale(0.95);
 }
 
+/* Slide-to-delete styles */
+.city-card-slide-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.city-card-content {
+  position: relative;
+  background: white;
+  transition: transform 0.3s ease;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.dark .city-card-content {
+  background: #1e1e1e;
+}
+
+.city-card-content.slid {
+  transform: translateX(-80px);
+}
+
+.delete-button-hidden {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ff4444;
+  border: none;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.delete-button-hidden:hover {
+  background: #cc0000;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.delete-button-hidden:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.delete-button-hidden svg {
+  width: 24px;
+  height: 24px;
+}
+
 .timeline-section {
   margin-bottom: 30px;
 }
