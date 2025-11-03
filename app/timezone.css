@@ -303,8 +303,8 @@ h1 {
 
 .city-dial-container {
   background: white;
-  border-radius: 15px;
-  padding: 0px 10px 10px 10px;
+  border-radius: 24px;
+  padding: 10px 20px 20px;
   margin-bottom: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -690,6 +690,11 @@ h1 {
 
   .hour-segment {
     width: 80px;
+  }
+
+  .city-dial-container {
+    border-radius: 15px;
+    padding: 0px 10px 10px 10px;
   }
 
   .side-panel {
