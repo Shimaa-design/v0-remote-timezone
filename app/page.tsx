@@ -279,39 +279,6 @@ export default function RemoteTimezonePage() {
 
     loadSelectedCities()
 
-    const addCityButton = document.getElementById("addCityButton")
-    const sidePanel = document.getElementById("sidePanel")
-    const closePanel = document.getElementById("closePanel")
-    const overlay = document.getElementById("overlay")
-    const container = document.querySelector(".container")
-    const citySearchInput = document.getElementById("citySearch") as HTMLInputElement
-
-    addCityButton?.addEventListener("click", () => {
-      sidePanel?.classList.add("open")
-      overlay?.classList.add("active")
-      container?.classList.add("panel-open")
-      renderCityList()
-    })
-
-    closePanel?.addEventListener("click", () => {
-      sidePanel?.classList.remove("open")
-      overlay?.classList.remove("active")
-      container?.classList.remove("panel-open")
-      if (citySearchInput) citySearchInput.value = ""
-    })
-
-    overlay?.addEventListener("click", () => {
-      sidePanel?.classList.remove("open")
-      overlay?.classList.remove("active")
-      container?.classList.remove("panel-open")
-      if (citySearchInput) citySearchInput.value = ""
-    })
-
-    citySearchInput?.addEventListener("input", (e) => {
-      const searchQuery = (e.target as HTMLInputElement).value
-      renderCityList(searchQuery)
-    })
-
     // Floating search functionality
     const floatingSearchInput = document.getElementById("floatingSearch") as HTMLInputElement
     const floatingSearchResults = document.getElementById("floatingSearchResults")
@@ -382,7 +349,6 @@ export default function RemoteTimezonePage() {
                 floatingSearchInput.value = ""
                 floatingSearchResults.innerHTML = ""
                 floatingSearchResults.style.display = "none"
-                renderCityList() // Update side panel if open
               })
             }
 
@@ -426,7 +392,6 @@ export default function RemoteTimezonePage() {
             floatingSearchInput.value = ""
             floatingSearchResults.innerHTML = ""
             floatingSearchResults.style.display = "none"
-            renderCityList() // Update side panel if open
           })
         }
 
@@ -458,79 +423,6 @@ export default function RemoteTimezonePage() {
       }
     })
 
-    function renderCityList(searchQuery = "") {
-      const cityList = document.getElementById("cityList")
-      if (!cityList) return
-      cityList.innerHTML = ""
-
-      // Filter cities based on search query
-      let filteredCities = cities.filter((city) => {
-        if (!searchQuery) return true
-        const query = searchQuery.toLowerCase()
-        return (
-          city.name.toLowerCase().includes(query) ||
-          city.country.toLowerCase().includes(query)
-        )
-      })
-
-      // If no match and search query exists, try to find nearest cities
-      let isShowingNearest = false
-      if (filteredCities.length === 0 && searchQuery.trim()) {
-        const coords = tryGeocodeSearch(searchQuery)
-        if (coords) {
-          filteredCities = findNearestCities(coords.lat, coords.lng, 10)
-          isShowingNearest = true
-
-          // Add header message
-          const header = document.createElement("div")
-          header.style.cssText = "padding: 12px; color: #666; font-size: 0.9em; background: #f9f9f9; border-radius: 4px; margin-bottom: 8px;"
-          header.textContent = "No exact match. Showing nearest cities:"
-          cityList.appendChild(header)
-        }
-      }
-
-      filteredCities.forEach((city) => {
-        const cityKey = `${city.name}-${city.timezone}`
-        const isSelected = selectedCities.has(cityKey)
-
-        // Calculate timezone offset
-        const now = new Date()
-        const cityTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
-        const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
-        const diffMs = cityTime.getTime() - localTime.getTime()
-        const diffHours = Math.round(diffMs / (1000 * 60 * 60))
-        const offsetString = diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}h` : "Local"
-
-        const item = document.createElement("div")
-        item.className = `city-list-item${isSelected ? " selected" : ""}`
-        const distanceInfo = isShowingNearest && 'distance' in city
-          ? ` <span style="color: #999; font-size: 0.85em;">(~${Math.round((city as any).distance)}km)</span>`
-          : ""
-        item.innerHTML = `
-          <div class="city-list-item-info">
-            <div class="city-list-item-name">${city.name}, ${city.country}${distanceInfo}</div>
-            <div class="city-list-item-timezone">${offsetString}</div>
-          </div>
-          <div class="checkmark">
-            <svg viewBox="0 0 24 24" fill="none">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </div>
-        `
-        item.addEventListener("click", () => {
-          if (selectedCities.has(cityKey)) {
-            selectedCities.delete(cityKey)
-          } else {
-            selectedCities.set(cityKey, city)
-          }
-          saveSelectedCities()
-          renderCityList(searchQuery)
-          rebuildTimelines()
-        })
-        cityList.appendChild(item)
-      })
-    }
-
     document.addEventListener("click", (e) => {
       const target = e.target as HTMLElement
       if (target.closest(".delete-button")) {
@@ -540,7 +432,6 @@ export default function RemoteTimezonePage() {
           selectedCities.delete(cityKey)
           saveSelectedCities()
           rebuildTimelines()
-          renderCityList()
         }
       }
     })
@@ -928,39 +819,10 @@ export default function RemoteTimezonePage() {
                 <path d="M3 21v-5h5" />
               </svg>
             </button>
-            <button className="icon-button add-button" id="addCityButton" title="Add City">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
           </div>
         </div>
 
         <div className="timeline-section" id="timelineSection"></div>
-      </div>
-
-      <div className="side-panel" id="sidePanel">
-        <div className="side-panel-header">
-          <h2>Select Cities</h2>
-          <button className="close-button" id="closePanel">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <div className="side-panel-search">
-          <input
-            type="text"
-            id="citySearch"
-            className="city-search-input"
-            placeholder="Search cities..."
-          />
-        </div>
-        <div className="side-panel-body">
-          <div className="city-list" id="cityList"></div>
-        </div>
       </div>
 
       <div className="floating-search-container">
