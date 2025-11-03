@@ -341,6 +341,7 @@ h1 {
   border-radius: 10px;
   cursor: grab;
   user-select: none;
+  touch-action: none;
 }
 
 .dial-wrapper:active {
@@ -534,6 +535,10 @@ h1 {
   }
 
   .hour-segment {
+    width: 80px;
+  }
+
+  .hour-segment.half-hour {
     width: 80px;
   }
 

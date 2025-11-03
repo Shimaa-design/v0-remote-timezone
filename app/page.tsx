@@ -388,26 +388,31 @@ export default function RemoteTimezonePage() {
         dialTrack.appendChild(halfHourSegment)
       }
 
-      const segmentWidth = 100
-      const centerSegmentIndex = 288
-      const centerPosition = centerSegmentIndex * segmentWidth
-      const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
-      const wrapperWidth = dialWrapper.offsetWidth
-      const centerOffset = wrapperWidth / 2
-      const finalPosition = centerPosition + minuteOffset - centerOffset
+      // Wait for next frame to get actual rendered segment width
+      requestAnimationFrame(() => {
+        const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
+        const segmentWidth = firstSegment?.offsetWidth || 100
+        const centerSegmentIndex = 288
+        const centerPosition = centerSegmentIndex * segmentWidth
+        const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
+        const wrapperWidth = dialWrapper.offsetWidth
+        const centerOffset = wrapperWidth / 2
+        const finalPosition = centerPosition + minuteOffset - centerOffset
 
-      dialTrack.style.transform = `translateX(-${finalPosition}px)`
-      dialTrack.dataset.centerOffset = finalPosition.toString()
+        dialTrack.style.transform = `translateX(-${finalPosition}px)`
+        dialTrack.dataset.centerOffset = finalPosition.toString()
+      })
 
       setupDialDrag(dialWrapper)
     }
 
     function setupDialDrag(dialWrapper: HTMLElement) {
       dialWrapper.addEventListener("mousedown", startDrag)
-      dialWrapper.addEventListener("touchstart", startDrag)
+      dialWrapper.addEventListener("touchstart", startDrag, { passive: false })
     }
 
     function startDrag(e: MouseEvent | TouchEvent) {
+      e.preventDefault()
       isDragging = true
       autoUpdate = false
       dragStartX = e.type === "mousedown" ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
@@ -423,6 +428,7 @@ export default function RemoteTimezonePage() {
 
     function drag(e: MouseEvent | TouchEvent) {
       if (!isDragging) return
+      e.preventDefault()
 
       const currentX = e.type === "mousemove" ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
       const diff = currentX - dragStartX
@@ -433,7 +439,9 @@ export default function RemoteTimezonePage() {
         dialTrack.style.transform = `translateX(${newOffset}px)`
       })
 
-      const segmentWidth = 100
+      // Get actual segment width from DOM to handle mobile CSS changes
+      const firstSegment = dialElements[0]?.querySelector(".hour-segment") as HTMLElement
+      const segmentWidth = firstSegment?.offsetWidth || 100
       const wrapperWidth = dialElements[0]?.offsetWidth || 0
       const centerOfWrapper = wrapperWidth / 2
 
@@ -444,12 +452,12 @@ export default function RemoteTimezonePage() {
 
       const centerSegmentIndex = 288
       const centerPosition = centerSegmentIndex * segmentWidth
-      const currentMinutesPixelOffset = (currentMinutes / 60) * 200
+      const currentMinutesPixelOffset = (currentMinutes / 60) * (segmentWidth * 2)
       const actualCurrentPosition = centerPosition + currentMinutesPixelOffset
 
       const trackPositionAtIndicator = -newOffset + centerOfWrapper
       const pixelOffset = trackPositionAtIndicator - actualCurrentPosition
-      const minuteDiff = (pixelOffset / 200) * 60
+      const minuteDiff = (pixelOffset / (segmentWidth * 2)) * 60
 
       currentMinuteOffset = Math.round(minuteDiff)
 
@@ -479,7 +487,7 @@ export default function RemoteTimezonePage() {
     }
 
     document.addEventListener("mousemove", drag)
-    document.addEventListener("touchmove", drag)
+    document.addEventListener("touchmove", drag, { passive: false })
     document.addEventListener("mouseup", stopDrag)
     document.addEventListener("touchend", stopDrag)
 
@@ -504,7 +512,9 @@ export default function RemoteTimezonePage() {
         const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: timezone }))
         const cityMinutes = cityTime.getMinutes()
 
-        const segmentWidth = 100
+        // Get actual segment width from DOM to handle mobile CSS changes
+        const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
+        const segmentWidth = firstSegment?.offsetWidth || 100
         const centerSegmentIndex = 288
         const centerPosition = centerSegmentIndex * segmentWidth
         const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
@@ -606,6 +616,7 @@ export default function RemoteTimezonePage() {
       document.removeEventListener("touchmove", drag)
       document.removeEventListener("mouseup", stopDrag)
       document.removeEventListener("touchend", stopDrag)
+      window.removeEventListener("resize", updateDialPositions)
     }
   }, [])
 
