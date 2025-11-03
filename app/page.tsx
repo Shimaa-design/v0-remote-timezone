@@ -86,7 +86,7 @@ export default function RemoteTimezonePage() {
       { name: "Karachi", country: "Pakistan", timezone: "Asia/Karachi" },
       { name: "Dhaka", country: "Bangladesh", timezone: "Asia/Dhaka" },
       { name: "Tehran", country: "Iran", timezone: "Asia/Tehran" },
-      { name: "Tel Aviv", country: "Israel", timezone: "Asia/Jerusalem" },
+      { name: "Ramallah", country: "Palestine", timezone: "Asia/Jerusalem" },
       { name: "Riyadh", country: "Saudi Arabia", timezone: "Asia/Riyadh" },
       { name: "Doha", country: "Qatar", timezone: "Asia/Qatar" },
       { name: "Abu Dhabi", country: "UAE", timezone: "Asia/Dubai" },
@@ -110,6 +110,68 @@ export default function RemoteTimezonePage() {
       { name: "Wellington", country: "New Zealand", timezone: "Pacific/Auckland" },
       { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji" },
     ]
+
+    const countryFlags: { [key: string]: string } = {
+      "USA": "🇺🇸",
+      "Canada": "🇨🇦",
+      "Mexico": "🇲🇽",
+      "Brazil": "🇧🇷",
+      "Argentina": "🇦🇷",
+      "Peru": "🇵🇪",
+      "Colombia": "🇨🇴",
+      "Chile": "🇨🇱",
+      "Venezuela": "🇻🇪",
+      "UK": "🇬🇧",
+      "France": "🇫🇷",
+      "Germany": "🇩🇪",
+      "Spain": "🇪🇸",
+      "Italy": "🇮🇹",
+      "Netherlands": "🇳🇱",
+      "Belgium": "🇧🇪",
+      "Austria": "🇦🇹",
+      "Czechia": "🇨🇿",
+      "Poland": "🇵🇱",
+      "Sweden": "🇸🇪",
+      "Denmark": "🇩🇰",
+      "Norway": "🇳🇴",
+      "Finland": "🇫🇮",
+      "Russia": "🇷🇺",
+      "Turkey": "🇹🇷",
+      "Greece": "🇬🇷",
+      "Portugal": "🇵🇹",
+      "Ireland": "🇮🇪",
+      "Switzerland": "🇨🇭",
+      "Japan": "🇯🇵",
+      "Hong Kong": "🇭🇰",
+      "Singapore": "🇸🇬",
+      "UAE": "🇦🇪",
+      "India": "🇮🇳",
+      "China": "🇨🇳",
+      "Thailand": "🇹🇭",
+      "South Korea": "🇰🇷",
+      "Philippines": "🇵🇭",
+      "Indonesia": "🇮🇩",
+      "Malaysia": "🇲🇾",
+      "Pakistan": "🇵🇰",
+      "Bangladesh": "🇧🇩",
+      "Iran": "🇮🇷",
+      "Palestine": "🇵🇸",
+      "Saudi Arabia": "🇸🇦",
+      "Qatar": "🇶🇦",
+      "Taiwan": "🇹🇼",
+      "Vietnam": "🇻🇳",
+      "Egypt": "🇪🇬",
+      "Nigeria": "🇳🇬",
+      "South Africa": "🇿🇦",
+      "Kenya": "🇰🇪",
+      "Morocco": "🇲🇦",
+      "Ghana": "🇬🇭",
+      "Algeria": "🇩🇿",
+      "Tunisia": "🇹🇳",
+      "Australia": "🇦🇺",
+      "New Zealand": "🇳🇿",
+      "Fiji": "🇫🇯"
+    }
 
     let selectedCities = new Map()
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -251,12 +313,13 @@ export default function RemoteTimezonePage() {
         const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
         const cityKey = `${city.name}-${city.timezone}`
         const isAlreadySelected = selectedCities.has(cityKey)
+        const flag = countryFlags[city.country] || "🏳️"
 
         const resultItem = document.createElement("div")
         resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
         resultItem.innerHTML = `
           <div class="floating-search-result-main">
-            <div class="floating-search-result-name">${city.name}, ${city.country}</div>
+            <div class="floating-search-result-name">${flag} ${city.name}, ${city.country}</div>
             <div class="floating-search-result-timezone">${offsetDisplay}</div>
           </div>
           ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
