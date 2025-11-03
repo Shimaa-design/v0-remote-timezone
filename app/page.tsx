@@ -202,6 +202,106 @@ export default function RemoteTimezonePage() {
       renderCityList(searchQuery)
     })
 
+    // Floating search functionality
+    const floatingSearchInput = document.getElementById("floatingSearch") as HTMLInputElement
+    const floatingSearchResults = document.getElementById("floatingSearchResults")
+
+    function getTimezoneOffset(timezone: string): string {
+      const now = new Date()
+      const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
+      const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
+      const diffMs = cityTime.getTime() - localTime.getTime()
+      const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+      return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
+    }
+
+    function renderFloatingSearchResults(query: string) {
+      if (!floatingSearchResults) return
+
+      if (!query.trim()) {
+        floatingSearchResults.innerHTML = ""
+        floatingSearchResults.style.display = "none"
+        return
+      }
+
+      const searchLower = query.toLowerCase()
+      const filteredCities = cities.filter((city) => {
+        const offset = getTimezoneOffset(city.timezone)
+        return (
+          city.name.toLowerCase().includes(searchLower) ||
+          city.country.toLowerCase().includes(searchLower) ||
+          offset.includes(searchLower) ||
+          `+${offset}`.includes(searchLower) ||
+          `${offset}h`.includes(searchLower) ||
+          `+${offset}h`.includes(searchLower)
+        )
+      })
+
+      if (filteredCities.length === 0) {
+        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No cities found</div>'
+        floatingSearchResults.style.display = "block"
+        return
+      }
+
+      floatingSearchResults.innerHTML = ""
+      const resultsToShow = filteredCities.slice(0, 10) // Limit to 10 results
+
+      resultsToShow.forEach((city) => {
+        const offset = getTimezoneOffset(city.timezone)
+        const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+        const cityKey = `${city.name}-${city.timezone}`
+        const isAlreadySelected = selectedCities.has(cityKey)
+
+        const resultItem = document.createElement("div")
+        resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
+        resultItem.innerHTML = `
+          <div class="floating-search-result-main">
+            <div class="floating-search-result-name">${city.name}, ${city.country}</div>
+            <div class="floating-search-result-timezone">${offsetDisplay}</div>
+          </div>
+          ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
+        `
+
+        if (!isAlreadySelected) {
+          resultItem.addEventListener("click", () => {
+            selectedCities.set(cityKey, city)
+            saveSelectedCities()
+            rebuildTimelines()
+            floatingSearchInput.value = ""
+            floatingSearchResults.innerHTML = ""
+            floatingSearchResults.style.display = "none"
+            renderCityList() // Update side panel if open
+          })
+        }
+
+        floatingSearchResults.appendChild(resultItem)
+      })
+
+      floatingSearchResults.style.display = "block"
+    }
+
+    floatingSearchInput?.addEventListener("input", (e) => {
+      const query = (e.target as HTMLInputElement).value
+      renderFloatingSearchResults(query)
+    })
+
+    floatingSearchInput?.addEventListener("focus", (e) => {
+      const query = (e.target as HTMLInputElement).value
+      if (query.trim()) {
+        renderFloatingSearchResults(query)
+      }
+    })
+
+    // Close floating search results when clicking outside
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement
+      if (!target.closest(".floating-search-wrapper")) {
+        if (floatingSearchResults) {
+          floatingSearchResults.style.display = "none"
+        }
+      }
+    })
+
     function renderCityList(searchQuery = "") {
       const cityList = document.getElementById("cityList")
       if (!cityList) return
@@ -685,6 +785,18 @@ export default function RemoteTimezonePage() {
         </div>
         <div className="side-panel-body">
           <div className="city-list" id="cityList"></div>
+        </div>
+      </div>
+
+      <div className="floating-search-container">
+        <div className="floating-search-wrapper">
+          <input
+            type="text"
+            id="floatingSearch"
+            className="floating-search-input"
+            placeholder="Quick add city (search by name, country, or timezone)..."
+          />
+          <div className="floating-search-results" id="floatingSearchResults"></div>
         </div>
       </div>
 
