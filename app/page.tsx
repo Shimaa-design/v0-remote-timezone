@@ -22,94 +22,156 @@ export default function RemoteTimezonePage() {
 
     const cities = [
       // North America
-      { name: "New York", timezone: "America/New_York" },
-      { name: "Los Angeles", timezone: "America/Los_Angeles" },
-      { name: "Chicago", timezone: "America/Chicago" },
-      { name: "Toronto", timezone: "America/Toronto" },
-      { name: "Vancouver", timezone: "America/Vancouver" },
-      { name: "Mexico City", timezone: "America/Mexico_City" },
-      { name: "Montreal", timezone: "America/Montreal" },
-      { name: "San Francisco", timezone: "America/Los_Angeles" },
-      { name: "Miami", timezone: "America/New_York" },
-      { name: "Denver", timezone: "America/Denver" },
-      { name: "Seattle", timezone: "America/Los_Angeles" },
-      { name: "Boston", timezone: "America/New_York" },
-      { name: "Phoenix", timezone: "America/Phoenix" },
-      { name: "Dallas", timezone: "America/Chicago" },
-      { name: "Atlanta", timezone: "America/New_York" },
-      { name: "Honolulu", timezone: "Pacific/Honolulu" },
-      { name: "Anchorage", timezone: "America/Anchorage" },
+      { name: "New York", country: "USA", timezone: "America/New_York" },
+      { name: "Los Angeles", country: "USA", timezone: "America/Los_Angeles" },
+      { name: "Chicago", country: "USA", timezone: "America/Chicago" },
+      { name: "Toronto", country: "Canada", timezone: "America/Toronto" },
+      { name: "Vancouver", country: "Canada", timezone: "America/Vancouver" },
+      { name: "Mexico City", country: "Mexico", timezone: "America/Mexico_City" },
+      { name: "Montreal", country: "Canada", timezone: "America/Montreal" },
+      { name: "San Francisco", country: "USA", timezone: "America/Los_Angeles" },
+      { name: "Miami", country: "USA", timezone: "America/New_York" },
+      { name: "Denver", country: "USA", timezone: "America/Denver" },
+      { name: "Seattle", country: "USA", timezone: "America/Los_Angeles" },
+      { name: "Boston", country: "USA", timezone: "America/New_York" },
+      { name: "Phoenix", country: "USA", timezone: "America/Phoenix" },
+      { name: "Dallas", country: "USA", timezone: "America/Chicago" },
+      { name: "Atlanta", country: "USA", timezone: "America/New_York" },
+      { name: "Honolulu", country: "USA", timezone: "Pacific/Honolulu" },
+      { name: "Anchorage", country: "USA", timezone: "America/Anchorage" },
       // South America
-      { name: "São Paulo", timezone: "America/Sao_Paulo" },
-      { name: "Buenos Aires", timezone: "America/Argentina/Buenos_Aires" },
-      { name: "Rio de Janeiro", timezone: "America/Sao_Paulo" },
-      { name: "Lima", timezone: "America/Lima" },
-      { name: "Bogotá", timezone: "America/Bogota" },
-      { name: "Santiago", timezone: "America/Santiago" },
-      { name: "Caracas", timezone: "America/Caracas" },
+      { name: "São Paulo", country: "Brazil", timezone: "America/Sao_Paulo" },
+      { name: "Buenos Aires", country: "Argentina", timezone: "America/Argentina/Buenos_Aires" },
+      { name: "Rio de Janeiro", country: "Brazil", timezone: "America/Sao_Paulo" },
+      { name: "Lima", country: "Peru", timezone: "America/Lima" },
+      { name: "Bogotá", country: "Colombia", timezone: "America/Bogota" },
+      { name: "Santiago", country: "Chile", timezone: "America/Santiago" },
+      { name: "Caracas", country: "Venezuela", timezone: "America/Caracas" },
       // Europe
-      { name: "London", timezone: "Europe/London" },
-      { name: "Paris", timezone: "Europe/Paris" },
-      { name: "Berlin", timezone: "Europe/Berlin" },
-      { name: "Madrid", timezone: "Europe/Madrid" },
-      { name: "Rome", timezone: "Europe/Rome" },
-      { name: "Amsterdam", timezone: "Europe/Amsterdam" },
-      { name: "Brussels", timezone: "Europe/Brussels" },
-      { name: "Vienna", timezone: "Europe/Vienna" },
-      { name: "Prague", timezone: "Europe/Prague" },
-      { name: "Warsaw", timezone: "Europe/Warsaw" },
-      { name: "Stockholm", timezone: "Europe/Stockholm" },
-      { name: "Copenhagen", timezone: "Europe/Copenhagen" },
-      { name: "Oslo", timezone: "Europe/Oslo" },
-      { name: "Helsinki", timezone: "Europe/Helsinki" },
-      { name: "Moscow", timezone: "Europe/Moscow" },
-      { name: "Istanbul", timezone: "Europe/Istanbul" },
-      { name: "Athens", timezone: "Europe/Athens" },
-      { name: "Lisbon", timezone: "Europe/Lisbon" },
-      { name: "Dublin", timezone: "Europe/Dublin" },
-      { name: "Zurich", timezone: "Europe/Zurich" },
+      { name: "London", country: "UK", timezone: "Europe/London" },
+      { name: "Paris", country: "France", timezone: "Europe/Paris" },
+      { name: "Berlin", country: "Germany", timezone: "Europe/Berlin" },
+      { name: "Madrid", country: "Spain", timezone: "Europe/Madrid" },
+      { name: "Rome", country: "Italy", timezone: "Europe/Rome" },
+      { name: "Amsterdam", country: "Netherlands", timezone: "Europe/Amsterdam" },
+      { name: "Brussels", country: "Belgium", timezone: "Europe/Brussels" },
+      { name: "Vienna", country: "Austria", timezone: "Europe/Vienna" },
+      { name: "Prague", country: "Czechia", timezone: "Europe/Prague" },
+      { name: "Warsaw", country: "Poland", timezone: "Europe/Warsaw" },
+      { name: "Stockholm", country: "Sweden", timezone: "Europe/Stockholm" },
+      { name: "Copenhagen", country: "Denmark", timezone: "Europe/Copenhagen" },
+      { name: "Oslo", country: "Norway", timezone: "Europe/Oslo" },
+      { name: "Helsinki", country: "Finland", timezone: "Europe/Helsinki" },
+      { name: "Moscow", country: "Russia", timezone: "Europe/Moscow" },
+      { name: "Istanbul", country: "Turkey", timezone: "Europe/Istanbul" },
+      { name: "Athens", country: "Greece", timezone: "Europe/Athens" },
+      { name: "Lisbon", country: "Portugal", timezone: "Europe/Lisbon" },
+      { name: "Dublin", country: "Ireland", timezone: "Europe/Dublin" },
+      { name: "Zurich", country: "Switzerland", timezone: "Europe/Zurich" },
       // Asia
-      { name: "Tokyo", timezone: "Asia/Tokyo" },
-      { name: "Hong Kong", timezone: "Asia/Hong_Kong" },
-      { name: "Singapore", timezone: "Asia/Singapore" },
-      { name: "Dubai", timezone: "Asia/Dubai" },
-      { name: "Mumbai", timezone: "Asia/Kolkata" },
-      { name: "Shanghai", timezone: "Asia/Shanghai" },
-      { name: "Beijing", timezone: "Asia/Shanghai" },
-      { name: "Bangkok", timezone: "Asia/Bangkok" },
-      { name: "Seoul", timezone: "Asia/Seoul" },
-      { name: "Manila", timezone: "Asia/Manila" },
-      { name: "Jakarta", timezone: "Asia/Jakarta" },
-      { name: "Kuala Lumpur", timezone: "Asia/Kuala_Lumpur" },
-      { name: "Delhi", timezone: "Asia/Kolkata" },
-      { name: "Bangalore", timezone: "Asia/Kolkata" },
-      { name: "Karachi", timezone: "Asia/Karachi" },
-      { name: "Dhaka", timezone: "Asia/Dhaka" },
-      { name: "Tehran", timezone: "Asia/Tehran" },
-      { name: "Tel Aviv", timezone: "Asia/Jerusalem" },
-      { name: "Riyadh", timezone: "Asia/Riyadh" },
-      { name: "Doha", timezone: "Asia/Qatar" },
-      { name: "Abu Dhabi", timezone: "Asia/Dubai" },
-      { name: "Taipei", timezone: "Asia/Taipei" },
-      { name: "Hanoi", timezone: "Asia/Ho_Chi_Minh" },
+      { name: "Tokyo", country: "Japan", timezone: "Asia/Tokyo" },
+      { name: "Hong Kong", country: "Hong Kong", timezone: "Asia/Hong_Kong" },
+      { name: "Singapore", country: "Singapore", timezone: "Asia/Singapore" },
+      { name: "Dubai", country: "UAE", timezone: "Asia/Dubai" },
+      { name: "Mumbai", country: "India", timezone: "Asia/Kolkata" },
+      { name: "Shanghai", country: "China", timezone: "Asia/Shanghai" },
+      { name: "Beijing", country: "China", timezone: "Asia/Shanghai" },
+      { name: "Bangkok", country: "Thailand", timezone: "Asia/Bangkok" },
+      { name: "Seoul", country: "South Korea", timezone: "Asia/Seoul" },
+      { name: "Manila", country: "Philippines", timezone: "Asia/Manila" },
+      { name: "Jakarta", country: "Indonesia", timezone: "Asia/Jakarta" },
+      { name: "Kuala Lumpur", country: "Malaysia", timezone: "Asia/Kuala_Lumpur" },
+      { name: "Delhi", country: "India", timezone: "Asia/Kolkata" },
+      { name: "Bangalore", country: "India", timezone: "Asia/Kolkata" },
+      { name: "Karachi", country: "Pakistan", timezone: "Asia/Karachi" },
+      { name: "Dhaka", country: "Bangladesh", timezone: "Asia/Dhaka" },
+      { name: "Tehran", country: "Iran", timezone: "Asia/Tehran" },
+      { name: "Ramallah", country: "Palestine", timezone: "Asia/Jerusalem" },
+      { name: "Riyadh", country: "Saudi Arabia", timezone: "Asia/Riyadh" },
+      { name: "Doha", country: "Qatar", timezone: "Asia/Qatar" },
+      { name: "Abu Dhabi", country: "UAE", timezone: "Asia/Dubai" },
+      { name: "Taipei", country: "Taiwan", timezone: "Asia/Taipei" },
+      { name: "Hanoi", country: "Vietnam", timezone: "Asia/Ho_Chi_Minh" },
       // Africa
-      { name: "Cairo", timezone: "Africa/Cairo" },
-      { name: "Lagos", timezone: "Africa/Lagos" },
-      { name: "Johannesburg", timezone: "Africa/Johannesburg" },
-      { name: "Nairobi", timezone: "Africa/Nairobi" },
-      { name: "Casablanca", timezone: "Africa/Casablanca" },
-      { name: "Accra", timezone: "Africa/Accra" },
-      { name: "Algiers", timezone: "Africa/Algiers" },
-      { name: "Tunis", timezone: "Africa/Tunis" },
+      { name: "Cairo", country: "Egypt", timezone: "Africa/Cairo" },
+      { name: "Lagos", country: "Nigeria", timezone: "Africa/Lagos" },
+      { name: "Johannesburg", country: "South Africa", timezone: "Africa/Johannesburg" },
+      { name: "Nairobi", country: "Kenya", timezone: "Africa/Nairobi" },
+      { name: "Casablanca", country: "Morocco", timezone: "Africa/Casablanca" },
+      { name: "Accra", country: "Ghana", timezone: "Africa/Accra" },
+      { name: "Algiers", country: "Algeria", timezone: "Africa/Algiers" },
+      { name: "Tunis", country: "Tunisia", timezone: "Africa/Tunis" },
       // Oceania
-      { name: "Sydney", timezone: "Australia/Sydney" },
-      { name: "Melbourne", timezone: "Australia/Melbourne" },
-      { name: "Brisbane", timezone: "Australia/Brisbane" },
-      { name: "Perth", timezone: "Australia/Perth" },
-      { name: "Auckland", timezone: "Pacific/Auckland" },
-      { name: "Wellington", timezone: "Pacific/Auckland" },
-      { name: "Fiji", timezone: "Pacific/Fiji" },
+      { name: "Sydney", country: "Australia", timezone: "Australia/Sydney" },
+      { name: "Melbourne", country: "Australia", timezone: "Australia/Melbourne" },
+      { name: "Brisbane", country: "Australia", timezone: "Australia/Brisbane" },
+      { name: "Perth", country: "Australia", timezone: "Australia/Perth" },
+      { name: "Auckland", country: "New Zealand", timezone: "Pacific/Auckland" },
+      { name: "Wellington", country: "New Zealand", timezone: "Pacific/Auckland" },
+      { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji" },
     ]
+
+    const countryFlags: { [key: string]: string } = {
+      "USA": "🇺🇸",
+      "Canada": "🇨🇦",
+      "Mexico": "🇲🇽",
+      "Brazil": "🇧🇷",
+      "Argentina": "🇦🇷",
+      "Peru": "🇵🇪",
+      "Colombia": "🇨🇴",
+      "Chile": "🇨🇱",
+      "Venezuela": "🇻🇪",
+      "UK": "🇬🇧",
+      "France": "🇫🇷",
+      "Germany": "🇩🇪",
+      "Spain": "🇪🇸",
+      "Italy": "🇮🇹",
+      "Netherlands": "🇳🇱",
+      "Belgium": "🇧🇪",
+      "Austria": "🇦🇹",
+      "Czechia": "🇨🇿",
+      "Poland": "🇵🇱",
+      "Sweden": "🇸🇪",
+      "Denmark": "🇩🇰",
+      "Norway": "🇳🇴",
+      "Finland": "🇫🇮",
+      "Russia": "🇷🇺",
+      "Turkey": "🇹🇷",
+      "Greece": "🇬🇷",
+      "Portugal": "🇵🇹",
+      "Ireland": "🇮🇪",
+      "Switzerland": "🇨🇭",
+      "Japan": "🇯🇵",
+      "Hong Kong": "🇭🇰",
+      "Singapore": "🇸🇬",
+      "UAE": "🇦🇪",
+      "India": "🇮🇳",
+      "China": "🇨🇳",
+      "Thailand": "🇹🇭",
+      "South Korea": "🇰🇷",
+      "Philippines": "🇵🇭",
+      "Indonesia": "🇮🇩",
+      "Malaysia": "🇲🇾",
+      "Pakistan": "🇵🇰",
+      "Bangladesh": "🇧🇩",
+      "Iran": "🇮🇷",
+      "Palestine": "🇵🇸",
+      "Saudi Arabia": "🇸🇦",
+      "Qatar": "🇶🇦",
+      "Taiwan": "🇹🇼",
+      "Vietnam": "🇻🇳",
+      "Egypt": "🇪🇬",
+      "Nigeria": "🇳🇬",
+      "South Africa": "🇿🇦",
+      "Kenya": "🇰🇪",
+      "Morocco": "🇲🇦",
+      "Ghana": "🇬🇭",
+      "Algeria": "🇩🇿",
+      "Tunisia": "🇹🇳",
+      "Australia": "🇦🇺",
+      "New Zealand": "🇳🇿",
+      "Fiji": "🇫🇯"
+    }
 
     let selectedCities = new Map()
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -174,6 +236,7 @@ export default function RemoteTimezonePage() {
     const closePanel = document.getElementById("closePanel")
     const overlay = document.getElementById("overlay")
     const container = document.querySelector(".container")
+    const citySearchInput = document.getElementById("citySearch") as HTMLInputElement
 
     addCityButton?.addEventListener("click", () => {
       sidePanel?.classList.add("open")
@@ -186,26 +249,156 @@ export default function RemoteTimezonePage() {
       sidePanel?.classList.remove("open")
       overlay?.classList.remove("active")
       container?.classList.remove("panel-open")
+      if (citySearchInput) citySearchInput.value = ""
     })
 
     overlay?.addEventListener("click", () => {
       sidePanel?.classList.remove("open")
       overlay?.classList.remove("active")
       container?.classList.remove("panel-open")
+      if (citySearchInput) citySearchInput.value = ""
     })
 
-    function renderCityList() {
+    citySearchInput?.addEventListener("input", (e) => {
+      const searchQuery = (e.target as HTMLInputElement).value
+      renderCityList(searchQuery)
+    })
+
+    // Floating search functionality
+    const floatingSearchInput = document.getElementById("floatingSearch") as HTMLInputElement
+    const floatingSearchResults = document.getElementById("floatingSearchResults")
+
+    function getTimezoneOffset(timezone: string): string {
+      const now = new Date()
+      const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
+      const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
+      const diffMs = cityTime.getTime() - localTime.getTime()
+      const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+      return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
+    }
+
+    function renderFloatingSearchResults(query: string) {
+      if (!floatingSearchResults) return
+
+      if (!query.trim()) {
+        floatingSearchResults.innerHTML = ""
+        floatingSearchResults.style.display = "none"
+        return
+      }
+
+      const searchLower = query.toLowerCase()
+      const filteredCities = cities.filter((city) => {
+        const offset = getTimezoneOffset(city.timezone)
+        return (
+          city.name.toLowerCase().includes(searchLower) ||
+          city.country.toLowerCase().includes(searchLower) ||
+          offset.includes(searchLower) ||
+          `+${offset}`.includes(searchLower) ||
+          `${offset}h`.includes(searchLower) ||
+          `+${offset}h`.includes(searchLower)
+        )
+      })
+
+      if (filteredCities.length === 0) {
+        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No cities found</div>'
+        floatingSearchResults.style.display = "block"
+        return
+      }
+
+      floatingSearchResults.innerHTML = ""
+      const resultsToShow = filteredCities.slice(0, 10) // Limit to 10 results
+
+      resultsToShow.forEach((city) => {
+        const offset = getTimezoneOffset(city.timezone)
+        const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+        const cityKey = `${city.name}-${city.timezone}`
+        const isAlreadySelected = selectedCities.has(cityKey)
+        const flag = countryFlags[city.country] || "🏳️"
+
+        const resultItem = document.createElement("div")
+        resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
+        resultItem.innerHTML = `
+          <div class="floating-search-result-main">
+            <div class="floating-search-result-name">${flag} ${city.name}, ${city.country}</div>
+            <div class="floating-search-result-timezone">${offsetDisplay}</div>
+          </div>
+          ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
+        `
+
+        if (!isAlreadySelected) {
+          resultItem.addEventListener("click", () => {
+            selectedCities.set(cityKey, city)
+            saveSelectedCities()
+            rebuildTimelines()
+            floatingSearchInput.value = ""
+            floatingSearchResults.innerHTML = ""
+            floatingSearchResults.style.display = "none"
+            renderCityList() // Update side panel if open
+          })
+        }
+
+        floatingSearchResults.appendChild(resultItem)
+      })
+
+      floatingSearchResults.style.display = "block"
+    }
+
+    floatingSearchInput?.addEventListener("input", (e) => {
+      const query = (e.target as HTMLInputElement).value
+      renderFloatingSearchResults(query)
+    })
+
+    floatingSearchInput?.addEventListener("focus", (e) => {
+      const query = (e.target as HTMLInputElement).value
+      if (query.trim()) {
+        renderFloatingSearchResults(query)
+      }
+    })
+
+    // Close floating search results when clicking outside
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement
+      if (!target.closest(".floating-search-wrapper")) {
+        if (floatingSearchResults) {
+          floatingSearchResults.style.display = "none"
+        }
+      }
+    })
+
+    function renderCityList(searchQuery = "") {
       const cityList = document.getElementById("cityList")
       if (!cityList) return
       cityList.innerHTML = ""
 
-      cities.forEach((city) => {
+      // Filter cities based on search query
+      const filteredCities = cities.filter((city) => {
+        if (!searchQuery) return true
+        const query = searchQuery.toLowerCase()
+        return (
+          city.name.toLowerCase().includes(query) ||
+          city.country.toLowerCase().includes(query)
+        )
+      })
+
+      filteredCities.forEach((city) => {
         const cityKey = `${city.name}-${city.timezone}`
         const isSelected = selectedCities.has(cityKey)
+
+        // Calculate timezone offset
+        const now = new Date()
+        const cityTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
+        const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
+        const diffMs = cityTime.getTime() - localTime.getTime()
+        const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+        const offsetString = diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}h` : "Local"
+
         const item = document.createElement("div")
         item.className = `city-list-item${isSelected ? " selected" : ""}`
         item.innerHTML = `
-          <div class="city-list-item-name">${city.name}</div>
+          <div class="city-list-item-info">
+            <div class="city-list-item-name">${city.name}, ${city.country}</div>
+            <div class="city-list-item-timezone">${offsetString}</div>
+          </div>
           <div class="checkmark">
             <svg viewBox="0 0 24 24" fill="none">
               <polyline points="20 6 9 17 4 12"/>
@@ -219,7 +412,7 @@ export default function RemoteTimezonePage() {
             selectedCities.set(cityKey, city)
           }
           saveSelectedCities()
-          renderCityList()
+          renderCityList(searchQuery)
           rebuildTimelines()
         })
         cityList.appendChild(item)
@@ -645,8 +838,28 @@ export default function RemoteTimezonePage() {
             </svg>
           </button>
         </div>
+        <div className="side-panel-search">
+          <input
+            type="text"
+            id="citySearch"
+            className="city-search-input"
+            placeholder="Search cities..."
+          />
+        </div>
         <div className="side-panel-body">
           <div className="city-list" id="cityList"></div>
+        </div>
+      </div>
+
+      <div className="floating-search-container">
+        <div className="floating-search-wrapper">
+          <input
+            type="text"
+            id="floatingSearch"
+            className="floating-search-input"
+            placeholder="Quick add city (search by name, country, or timezone)..."
+          />
+          <div className="floating-search-results" id="floatingSearchResults"></div>
         </div>
       </div>
 
