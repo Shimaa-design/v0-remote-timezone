@@ -16,7 +16,7 @@ body {
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
   transition: transform 0.3s ease, margin-right 0.3s ease;
 }
@@ -688,8 +688,10 @@ h1 {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 10px;
+  padding-top: 10px;
   border-right: 1px solid #d0d0d0;
   flex-shrink: 0;
   position: relative;
@@ -713,21 +715,21 @@ h1 {
 
 .minute-marker.small {
   height: 20px;
-  background: #b0b0b0;
+  background: #d0d0d0;
 }
 
 .dark .minute-marker.small {
-  background: #555;
+  background: #444;
 }
 
 .minute-marker.big {
   height: 30px;
-  background: #808080;
-  width: 2px;
+  background: #d0d0d0;
+  width: 1px;
 }
 
 .dark .minute-marker.big {
-  background: #666;
+  background: #444;
 }
 
 .transition-icon {
