@@ -694,19 +694,30 @@ export default function RemoteTimezonePage() {
       }
 
       // Wait for DOM to settle before calculating positions
-      setTimeout(() => {
-        const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
-        const segmentWidth = firstSegment?.offsetWidth || 100
-        const centerSegmentIndex = 288
-        const centerPosition = centerSegmentIndex * segmentWidth
-        const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
-        const wrapperWidth = dialWrapper.offsetWidth
-        const centerOffset = wrapperWidth / 2
-        const finalPosition = centerPosition + minuteOffset - centerOffset
+      // Use requestAnimationFrame twice to ensure layout is complete, especially on mobile
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
+          const segmentWidth = firstSegment?.offsetWidth
 
-        dialTrack.style.transform = `translateX(-${finalPosition}px)`
-        dialTrack.dataset.centerOffset = finalPosition.toString()
-      }, 0)
+          // Ensure we have valid dimensions before positioning
+          if (!segmentWidth || segmentWidth === 0) {
+            console.warn('Segment width not ready, retrying...')
+            setTimeout(() => initializeDial(dialWrapper, timezone), 50)
+            return
+          }
+
+          const centerSegmentIndex = 288
+          const centerPosition = centerSegmentIndex * segmentWidth
+          const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
+          const wrapperWidth = dialWrapper.offsetWidth
+          const centerOffset = wrapperWidth / 2
+          const finalPosition = centerPosition + minuteOffset - centerOffset
+
+          dialTrack.style.transform = `translateX(-${finalPosition}px)`
+          dialTrack.dataset.centerOffset = finalPosition.toString()
+        })
+      })
 
       setupDialDrag(dialWrapper)
     }
@@ -753,7 +764,14 @@ export default function RemoteTimezonePage() {
 
         // Get actual segment width from the DOM to handle mobile responsive sizing
         const firstSegment = dialElements[0]?.querySelector(".hour-segment") as HTMLElement
-        const segmentWidth = firstSegment?.offsetWidth || 100
+        const segmentWidth = firstSegment?.offsetWidth
+
+        // Skip calculations if segments aren't properly laid out (important for mobile)
+        if (!segmentWidth || segmentWidth === 0) {
+          rafId = null
+          return
+        }
+
         const wrapperWidth = dialElements[0]?.offsetWidth || 0
         const centerOfWrapper = wrapperWidth / 2
 
@@ -834,7 +852,13 @@ export default function RemoteTimezonePage() {
 
         // Get actual segment width from the DOM to handle mobile responsive sizing
         const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
-        const segmentWidth = firstSegment?.offsetWidth || 100
+        const segmentWidth = firstSegment?.offsetWidth
+
+        // Skip update if segments aren't laid out yet (important for mobile)
+        if (!segmentWidth || segmentWidth === 0) {
+          return
+        }
+
         const centerSegmentIndex = 288
         const centerPosition = centerSegmentIndex * segmentWidth
         const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
