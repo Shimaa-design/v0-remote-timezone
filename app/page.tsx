@@ -228,6 +228,32 @@ export default function RemoteTimezonePage() {
 
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
 
+    // Helper function to correctly get time components in a specific timezone
+    function getTimeInTimezone(date: Date, timezone: string) {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      })
+
+      const parts = formatter.formatToParts(date)
+      const getValue = (type: string) => parts.find(p => p.type === type)?.value || '0'
+
+      return {
+        year: parseInt(getValue('year')),
+        month: parseInt(getValue('month')) - 1,
+        day: parseInt(getValue('day')),
+        hour: parseInt(getValue('hour')),
+        minute: parseInt(getValue('minute')),
+        second: parseInt(getValue('second'))
+      }
+    }
+
     function playTickSound() {
       const oscillator = audioContext.createOscillator()
       const gainNode = audioContext.createGain()
@@ -287,9 +313,16 @@ export default function RemoteTimezonePage() {
 
     function getTimezoneOffset(timezone: string): string {
       const now = new Date()
-      const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
-      const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
-      const diffMs = cityTime.getTime() - localTime.getTime()
+      const cityTimeParts = getTimeInTimezone(now, timezone)
+      const localTimeParts = getTimeInTimezone(now, localTimezone)
+
+      // Create dates in UTC to compare
+      const cityTime = Date.UTC(cityTimeParts.year, cityTimeParts.month, cityTimeParts.day,
+                                 cityTimeParts.hour, cityTimeParts.minute, cityTimeParts.second)
+      const localTime = Date.UTC(localTimeParts.year, localTimeParts.month, localTimeParts.day,
+                                  localTimeParts.hour, localTimeParts.minute, localTimeParts.second)
+
+      const diffMs = cityTime - localTime
       const diffHours = Math.round(diffMs / (1000 * 60 * 60))
       return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
     }
@@ -500,12 +533,19 @@ export default function RemoteTimezonePage() {
       container.dataset.timezone = city.timezone
 
       const now = new Date()
-      const cityTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
-      const localTime = new Date(now.toLocaleString("en-US", { timeZone: localTimezone }))
-      const diffMs = cityTime.getTime() - localTime.getTime()
+      const cityTimeParts = getTimeInTimezone(now, city.timezone)
+      const localTimeParts = getTimeInTimezone(now, localTimezone)
+
+      // Create dates in UTC to compare
+      const cityTime = Date.UTC(cityTimeParts.year, cityTimeParts.month, cityTimeParts.day,
+                                 cityTimeParts.hour, cityTimeParts.minute, cityTimeParts.second)
+      const localTime = Date.UTC(localTimeParts.year, localTimeParts.month, localTimeParts.day,
+                                  localTimeParts.hour, localTimeParts.minute, localTimeParts.second)
+
+      const diffMs = cityTime - localTime
       const diffHours = Math.round(diffMs / (1000 * 60 * 60))
-      const cityDay = cityTime.getDate()
-      const localDay = localTime.getDate()
+      const cityDay = cityTimeParts.day
+      const localDay = localTimeParts.day
       const dayDiff = cityDay - localDay
 
       let offsetString = ""
@@ -590,9 +630,9 @@ export default function RemoteTimezonePage() {
 
       const now = new Date()
       const adjustedTime = new Date(now.getTime() + currentMinuteOffset * 60 * 1000)
-      const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: timezone }))
-      const cityHour = cityTime.getHours()
-      const cityMinutes = cityTime.getMinutes()
+      const cityTimeParts = getTimeInTimezone(adjustedTime, timezone)
+      const cityHour = cityTimeParts.hour
+      const cityMinutes = cityTimeParts.minute
 
       for (let hourOffset = -144; hourOffset <= 144; hourOffset++) {
         const hour24 = (cityHour + hourOffset + 2400) % 24
@@ -719,8 +759,8 @@ export default function RemoteTimezonePage() {
 
         const timezone = dialElements[0]?.dataset.dial
         const now = new Date()
-        const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
-        const currentMinutes = cityTime.getMinutes()
+        const cityTimeParts = timezone ? getTimeInTimezone(now, timezone) : { minute: 0 }
+        const currentMinutes = cityTimeParts.minute
 
         const centerSegmentIndex = 288
         const centerPosition = centerSegmentIndex * segmentWidth
@@ -789,8 +829,8 @@ export default function RemoteTimezonePage() {
 
         const now = new Date()
         const adjustedTime = new Date(now.getTime() + currentMinuteOffset * 60 * 1000)
-        const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: timezone }))
-        const cityMinutes = cityTime.getMinutes()
+        const cityTimeParts = getTimeInTimezone(adjustedTime, timezone)
+        const cityMinutes = cityTimeParts.minute
 
         // Get actual segment width from the DOM to handle mobile responsive sizing
         const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
@@ -816,11 +856,11 @@ export default function RemoteTimezonePage() {
       const allCities = [localCity, ...Array.from(selectedCities.values())]
 
       allCities.forEach((city) => {
-        const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: city.timezone }))
         const timeElements = document.querySelectorAll(`[data-time="${city.timezone}"][data-city-name="${city.name}"]`)
 
         timeElements.forEach((timeElement) => {
-          timeElement.textContent = cityTime.toLocaleTimeString("en-US", {
+          timeElement.textContent = adjustedTime.toLocaleTimeString("en-US", {
+            timeZone: city.timezone,
             hour: "2-digit",
             minute: "2-digit",
             hour12: true,
@@ -832,11 +872,11 @@ export default function RemoteTimezonePage() {
         )
 
         if (currentMinuteOffset !== 0) {
-          const actualLocalTime = new Date(now.toLocaleString("en-US", { timeZone: city.timezone }))
           localTimeElements.forEach((localTimeElement) => {
             localTimeElement.textContent =
               "Local: " +
-              actualLocalTime.toLocaleTimeString("en-US", {
+              now.toLocaleTimeString("en-US", {
+                timeZone: city.timezone,
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
