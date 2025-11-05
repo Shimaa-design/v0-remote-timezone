@@ -506,6 +506,8 @@ h1 {
   border-radius: 10px;
   cursor: grab;
   user-select: none;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .dark .dial-wrapper {
