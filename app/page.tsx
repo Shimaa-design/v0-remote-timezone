@@ -634,7 +634,7 @@ export default function RemoteTimezonePage() {
       const cityHour = cityTimeParts.hour
       const cityMinutes = cityTimeParts.minute
 
-      for (let hourOffset = -144; hourOffset <= 144; hourOffset++) {
+      for (let hourOffset = -720; hourOffset <= 720; hourOffset++) {
         const hour24 = (cityHour + hourOffset + 2400) % 24
         const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12
         const period = hour24 < 12 ? "AM" : "PM"
@@ -693,7 +693,7 @@ export default function RemoteTimezonePage() {
             return
           }
 
-          const centerSegmentIndex = 288
+          const centerSegmentIndex = 720
           const centerPosition = centerSegmentIndex * segmentWidth
           const minuteOffset = (cityMinutes / 60) * segmentWidth
           const wrapperWidth = dialWrapper.offsetWidth
@@ -766,7 +766,7 @@ export default function RemoteTimezonePage() {
         const cityTimeParts = timezone ? getTimeInTimezone(now, timezone) : { minute: 0 }
         const currentMinutes = cityTimeParts.minute
 
-        const centerSegmentIndex = 288
+        const centerSegmentIndex = 720
         const centerPosition = centerSegmentIndex * segmentWidth
         // Each segment represents 60 minutes
         const currentMinutesPixelOffset = (currentMinutes / 60) * segmentWidth
@@ -845,7 +845,7 @@ export default function RemoteTimezonePage() {
           return
         }
 
-        const centerSegmentIndex = 288
+        const centerSegmentIndex = 720
         const centerPosition = centerSegmentIndex * segmentWidth
         const minuteOffset = (cityMinutes / 60) * segmentWidth
         const wrapperWidth = dialWrapper.offsetWidth
