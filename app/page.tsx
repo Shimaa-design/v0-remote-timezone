@@ -332,24 +332,22 @@ export default function RemoteTimezonePage() {
     function renderFloatingSearchResults(query: string) {
       if (!floatingSearchResults) return
 
-      if (!query.trim()) {
-        floatingSearchResults.innerHTML = ""
-        floatingSearchResults.style.display = "none"
-        return
-      }
+      const searchLower = query.toLowerCase().trim()
 
-      const searchLower = query.toLowerCase()
-      const filteredCities = cities.filter((city) => {
-        const offset = getTimezoneOffset(city.timezone)
-        return (
-          city.name.toLowerCase().includes(searchLower) ||
-          city.country.toLowerCase().includes(searchLower) ||
-          offset.includes(searchLower) ||
-          `+${offset}`.includes(searchLower) ||
-          `${offset}h`.includes(searchLower) ||
-          `+${offset}h`.includes(searchLower)
-        )
-      })
+      // If query is empty, show all cities
+      const filteredCities = searchLower
+        ? cities.filter((city) => {
+            const offset = getTimezoneOffset(city.timezone)
+            return (
+              city.name.toLowerCase().includes(searchLower) ||
+              city.country.toLowerCase().includes(searchLower) ||
+              offset.includes(searchLower) ||
+              `+${offset}`.includes(searchLower) ||
+              `${offset}h`.includes(searchLower) ||
+              `+${offset}h`.includes(searchLower)
+            )
+          })
+        : cities // Show all cities when query is empty
 
       // If no exact match, try to find nearest cities
       if (filteredCities.length === 0) {
@@ -402,7 +400,8 @@ export default function RemoteTimezonePage() {
       }
 
       floatingSearchResults.innerHTML = ""
-      const resultsToShow = filteredCities.slice(0, 10) // Limit to 10 results
+      // Show all cities when no search query, limit to 10 when searching
+      const resultsToShow = searchLower ? filteredCities.slice(0, 10) : filteredCities
 
       resultsToShow.forEach((city) => {
         const offset = getTimezoneOffset(city.timezone)
@@ -445,9 +444,8 @@ export default function RemoteTimezonePage() {
 
     floatingSearchInput?.addEventListener("focus", (e) => {
       const query = (e.target as HTMLInputElement).value
-      if (query.trim()) {
-        renderFloatingSearchResults(query)
-      }
+      // Always show results on focus, even if query is empty (shows full list)
+      renderFloatingSearchResults(query)
     })
 
     // Close floating search results when clicking outside
