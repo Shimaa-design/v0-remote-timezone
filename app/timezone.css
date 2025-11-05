@@ -544,15 +544,6 @@ h1 {
   border-right: 1px solid #444;
 }
 
-.hour-segment.half-hour {
-  width: 100px;
-  border-right: 1px solid #d0d0d0;
-}
-
-.dark .hour-segment.half-hour {
-  border-right: 1px solid #444;
-}
-
 .minute-marker {
   position: absolute;
   bottom: 0;
@@ -565,13 +556,23 @@ h1 {
   background: #444;
 }
 
-.minute-marker.major {
+.minute-marker.small {
   height: 20px;
   background: #b0b0b0;
 }
 
-.dark .minute-marker.major {
-  background: #444;
+.dark .minute-marker.small {
+  background: #555;
+}
+
+.minute-marker.big {
+  height: 30px;
+  background: #808080;
+  width: 2px;
+}
+
+.dark .minute-marker.big {
+  background: #666;
 }
 
 .transition-icon {
