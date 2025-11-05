@@ -20,6 +20,7 @@ export default function RemoteTimezonePage() {
     let autoUpdate = true
     let dialElements: HTMLElement[] = []
     let lastSnappedMinute: number | null = null
+    let rafId: number | null = null
 
     const cities = [
       // North America
@@ -618,9 +619,10 @@ export default function RemoteTimezonePage() {
           hourSegment.appendChild(iconContainer.firstElementChild!)
         }
 
-        for (let minute = 1; minute < 30; minute++) {
+        // Optimized: Only create major minute markers (every 10 minutes) to reduce DOM nodes
+        for (let minute = 10; minute < 30; minute += 10) {
           const marker = document.createElement("div")
-          marker.className = minute % 10 === 0 ? "minute-marker major" : "minute-marker"
+          marker.className = "minute-marker major"
           marker.style.left = `${(minute / 30) * 100}%`
           hourSegment.appendChild(marker)
         }
@@ -640,9 +642,10 @@ export default function RemoteTimezonePage() {
         halfHourSegment.appendChild(halfHourLabel)
         halfHourSegment.appendChild(halfPeriodLabel)
 
-        for (let minute = 1; minute < 30; minute++) {
+        // Optimized: Only create major minute markers (every 10 minutes) to reduce DOM nodes
+        for (let minute = 10; minute < 30; minute += 10) {
           const marker = document.createElement("div")
-          marker.className = minute % 10 === 0 ? "minute-marker major" : "minute-marker"
+          marker.className = "minute-marker major"
           marker.style.left = `${(minute / 30) * 100}%`
           halfHourSegment.appendChild(marker)
         }
@@ -650,16 +653,20 @@ export default function RemoteTimezonePage() {
         dialTrack.appendChild(halfHourSegment)
       }
 
-      const segmentWidth = 100
-      const centerSegmentIndex = 288
-      const centerPosition = centerSegmentIndex * segmentWidth
-      const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
-      const wrapperWidth = dialWrapper.offsetWidth
-      const centerOffset = wrapperWidth / 2
-      const finalPosition = centerPosition + minuteOffset - centerOffset
+      // Wait for DOM to settle before calculating positions
+      setTimeout(() => {
+        const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
+        const segmentWidth = firstSegment?.offsetWidth || 100
+        const centerSegmentIndex = 288
+        const centerPosition = centerSegmentIndex * segmentWidth
+        const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
+        const wrapperWidth = dialWrapper.offsetWidth
+        const centerOffset = wrapperWidth / 2
+        const finalPosition = centerPosition + minuteOffset - centerOffset
 
-      dialTrack.style.transform = `translateX(-${finalPosition}px)`
-      dialTrack.dataset.centerOffset = finalPosition.toString()
+        dialTrack.style.transform = `translateX(-${finalPosition}px)`
+        dialTrack.dataset.centerOffset = finalPosition.toString()
+      }, 0)
 
       setupDialDrag(dialWrapper)
     }
@@ -686,50 +693,69 @@ export default function RemoteTimezonePage() {
     function drag(e: MouseEvent | TouchEvent) {
       if (!isDragging) return
 
-      const currentX = e.type === "mousemove" ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
-      const diff = currentX - dragStartX
-      const newOffset = dragStartOffset + diff
-
-      dialElements.forEach((dialWrapper) => {
-        const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
-        dialTrack.style.transform = `translateX(${newOffset}px)`
-      })
-
-      const segmentWidth = 100
-      const wrapperWidth = dialElements[0]?.offsetWidth || 0
-      const centerOfWrapper = wrapperWidth / 2
-
-      const timezone = dialElements[0]?.dataset.dial
-      const now = new Date()
-      const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
-      const currentMinutes = cityTime.getMinutes()
-
-      const centerSegmentIndex = 288
-      const centerPosition = centerSegmentIndex * segmentWidth
-      const currentMinutesPixelOffset = (currentMinutes / 60) * 200
-      const actualCurrentPosition = centerPosition + currentMinutesPixelOffset
-
-      const trackPositionAtIndicator = -newOffset + centerOfWrapper
-      const pixelOffset = trackPositionAtIndicator - actualCurrentPosition
-      const minuteDiff = (pixelOffset / 200) * 60
-
-      currentMinuteOffset = Math.round(minuteDiff)
-
-      const pixelsPerMinute = segmentWidth / 30
-      const totalMinutesFromCenter = pixelOffset / pixelsPerMinute
-      const currentMinute = Math.round(totalMinutesFromCenter)
-
-      if (lastSnappedMinute !== null && lastSnappedMinute !== currentMinute) {
-        playTickSound()
+      // Throttle using requestAnimationFrame for better performance
+      if (rafId !== null) {
+        return
       }
-      lastSnappedMinute = currentMinute
 
-      updateAllTimes()
+      const currentX = e.type === "mousemove" ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+
+        const diff = currentX - dragStartX
+        const newOffset = dragStartOffset + diff
+
+        dialElements.forEach((dialWrapper) => {
+          const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
+          dialTrack.style.transform = `translateX(${newOffset}px)`
+        })
+
+        // Get actual segment width from the DOM to handle mobile responsive sizing
+        const firstSegment = dialElements[0]?.querySelector(".hour-segment") as HTMLElement
+        const segmentWidth = firstSegment?.offsetWidth || 100
+        const wrapperWidth = dialElements[0]?.offsetWidth || 0
+        const centerOfWrapper = wrapperWidth / 2
+
+        const timezone = dialElements[0]?.dataset.dial
+        const now = new Date()
+        const cityTime = new Date(now.toLocaleString("en-US", { timeZone: timezone }))
+        const currentMinutes = cityTime.getMinutes()
+
+        const centerSegmentIndex = 288
+        const centerPosition = centerSegmentIndex * segmentWidth
+        // More precise calculation: each segment represents 30 minutes
+        const currentMinutesPixelOffset = (currentMinutes / 60) * (segmentWidth * 2)
+        const actualCurrentPosition = centerPosition + currentMinutesPixelOffset
+
+        const trackPositionAtIndicator = -newOffset + centerOfWrapper
+        const pixelOffset = trackPositionAtIndicator - actualCurrentPosition
+        // Each pair of segments represents 60 minutes
+        const minuteDiff = (pixelOffset / (segmentWidth * 2)) * 60
+
+        currentMinuteOffset = Math.round(minuteDiff)
+
+        const pixelsPerMinute = (segmentWidth * 2) / 60
+        const totalMinutesFromCenter = pixelOffset / pixelsPerMinute
+        const currentMinute = Math.round(totalMinutesFromCenter)
+
+        if (lastSnappedMinute !== null && lastSnappedMinute !== currentMinute) {
+          playTickSound()
+        }
+        lastSnappedMinute = currentMinute
+
+        updateAllTimes()
+      })
     }
 
     function stopDrag() {
       if (isDragging) {
         isDragging = false
+        // Cancel any pending animation frame
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId)
+          rafId = null
+        }
         dialElements.forEach((dialWrapper) => {
           dialWrapper.style.cursor = "grab"
         })
@@ -766,7 +792,9 @@ export default function RemoteTimezonePage() {
         const cityTime = new Date(adjustedTime.toLocaleString("en-US", { timeZone: timezone }))
         const cityMinutes = cityTime.getMinutes()
 
-        const segmentWidth = 100
+        // Get actual segment width from the DOM to handle mobile responsive sizing
+        const firstSegment = dialTrack.querySelector(".hour-segment") as HTMLElement
+        const segmentWidth = firstSegment?.offsetWidth || 100
         const centerSegmentIndex = 288
         const centerPosition = centerSegmentIndex * segmentWidth
         const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
@@ -864,6 +892,9 @@ export default function RemoteTimezonePage() {
 
     return () => {
       clearInterval(updateInterval)
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+      }
       document.removeEventListener("mousemove", drag)
       document.removeEventListener("touchmove", drag)
       document.removeEventListener("mouseup", stopDrag)
