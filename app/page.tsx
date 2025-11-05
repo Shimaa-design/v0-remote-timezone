@@ -1,11 +1,13 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import "./timezone.css"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { HamburgerMenu } from "@/components/hamburger-menu"
+import { Sidebar } from "@/components/sidebar"
 
 export default function RemoteTimezonePage() {
   const initializedRef = useRef(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   useEffect(() => {
     // Prevent double initialization in React StrictMode
@@ -954,11 +956,15 @@ export default function RemoteTimezonePage() {
 
   return (
     <>
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
       <div className="container">
         <div className="header-bar">
-          <h1 className="font-serif tracking-normal font-semibold text-xl leading-6">☀️ Remote Timezone</h1>
+          <div className="header-left">
+            <HamburgerMenu onClick={() => setIsSidebarOpen(true)} />
+          </div>
+          <h1 className="font-serif tracking-normal font-semibold text-xl leading-6 header-title">☀️ Remote Timezone</h1>
           <div className="header-buttons">
-            <ThemeToggle />
             <button className="icon-button" id="resetButton" title="Reset to Current Time">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
