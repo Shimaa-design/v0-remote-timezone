@@ -16,7 +16,7 @@ body {
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
   transition: transform 0.3s ease, margin-right 0.3s ease;
 }
