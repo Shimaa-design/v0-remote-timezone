@@ -400,9 +400,8 @@ export default function RemoteTimezonePage() {
       }
 
       floatingSearchResults.innerHTML = ""
-      // Show more results when displaying all cities (no search query)
-      const limit = searchLower ? 10 : 20
-      const resultsToShow = filteredCities.slice(0, limit)
+      // Show all cities when no search query, limit to 10 when searching
+      const resultsToShow = searchLower ? filteredCities.slice(0, 10) : filteredCities
 
       resultsToShow.forEach((city) => {
         const offset = getTimezoneOffset(city.timezone)
