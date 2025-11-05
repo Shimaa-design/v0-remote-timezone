@@ -529,7 +529,7 @@ h1 {
 }
 
 .hour-segment {
-  width: 100px;
+  width: 200px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -548,7 +548,7 @@ h1 {
   position: absolute;
   bottom: 0;
   width: 1px;
-  height: 15px;
+  height: 12px;
   background: #d0d0d0;
 }
 

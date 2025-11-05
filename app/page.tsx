@@ -659,24 +659,22 @@ export default function RemoteTimezonePage() {
           hourSegment.appendChild(iconContainer.firstElementChild!)
         }
 
-        // Create minute markers at 15, 30, and 45 minutes
-        // 15 minutes - slightly taller dash
-        const marker15 = document.createElement("div")
-        marker15.className = "minute-marker small"
-        marker15.style.left = `${(15 / 60) * 100}%`
-        hourSegment.appendChild(marker15)
+        // Create minute markers for every 5 minutes
+        for (let minute = 5; minute < 60; minute += 5) {
+          const marker = document.createElement("div")
 
-        // 30 minutes - big dash
-        const marker30 = document.createElement("div")
-        marker30.className = "minute-marker big"
-        marker30.style.left = `${(30 / 60) * 100}%`
-        hourSegment.appendChild(marker30)
+          // Determine marker class based on minute
+          if (minute === 30) {
+            marker.className = "minute-marker big" // 30px height, 2px width
+          } else if (minute === 15 || minute === 45) {
+            marker.className = "minute-marker small" // 20px height
+          } else {
+            marker.className = "minute-marker" // 12px height (default)
+          }
 
-        // 45 minutes - slightly taller dash
-        const marker45 = document.createElement("div")
-        marker45.className = "minute-marker small"
-        marker45.style.left = `${(45 / 60) * 100}%`
-        hourSegment.appendChild(marker45)
+          marker.style.left = `${(minute / 60) * 100}%`
+          hourSegment.appendChild(marker)
+        }
 
         dialTrack.appendChild(hourSegment)
       }
