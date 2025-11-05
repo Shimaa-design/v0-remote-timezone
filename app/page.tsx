@@ -634,7 +634,7 @@ export default function RemoteTimezonePage() {
       const cityHour = cityTimeParts.hour
       const cityMinutes = cityTimeParts.minute
 
-      for (let hourOffset = -144; hourOffset <= 144; hourOffset++) {
+      for (let hourOffset = -720; hourOffset <= 720; hourOffset++) {
         const hour24 = (cityHour + hourOffset + 2400) % 24
         const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12
         const period = hour24 < 12 ? "AM" : "PM"
@@ -659,38 +659,24 @@ export default function RemoteTimezonePage() {
           hourSegment.appendChild(iconContainer.firstElementChild!)
         }
 
-        // Optimized: Only create major minute markers (every 10 minutes) to reduce DOM nodes
-        for (let minute = 10; minute < 30; minute += 10) {
+        // Create minute markers for every 5 minutes
+        for (let minute = 5; minute < 60; minute += 5) {
           const marker = document.createElement("div")
-          marker.className = "minute-marker major"
-          marker.style.left = `${(minute / 30) * 100}%`
+
+          // Determine marker class based on minute
+          if (minute === 30) {
+            marker.className = "minute-marker big" // 30px height, 2px width
+          } else if (minute === 15 || minute === 45) {
+            marker.className = "minute-marker small" // 20px height
+          } else {
+            marker.className = "minute-marker" // 12px height (default)
+          }
+
+          marker.style.left = `${(minute / 60) * 100}%`
           hourSegment.appendChild(marker)
         }
 
         dialTrack.appendChild(hourSegment)
-
-        const halfHourSegment = document.createElement("div")
-        halfHourSegment.className = `hour-segment half-hour ${category}`
-        const halfHourLabel = document.createElement("div")
-        halfHourLabel.className = "hour-label"
-        halfHourLabel.textContent = `${hour12}:30`
-        halfHourLabel.style.fontSize = "1rem"
-        const halfPeriodLabel = document.createElement("div")
-        halfPeriodLabel.className = "hour-period"
-        halfPeriodLabel.textContent = period
-        halfPeriodLabel.style.fontSize = "0.65rem"
-        halfHourSegment.appendChild(halfHourLabel)
-        halfHourSegment.appendChild(halfPeriodLabel)
-
-        // Optimized: Only create major minute markers (every 10 minutes) to reduce DOM nodes
-        for (let minute = 10; minute < 30; minute += 10) {
-          const marker = document.createElement("div")
-          marker.className = "minute-marker major"
-          marker.style.left = `${(minute / 30) * 100}%`
-          halfHourSegment.appendChild(marker)
-        }
-
-        dialTrack.appendChild(halfHourSegment)
       }
 
       // Wait for DOM to settle before calculating positions
@@ -707,9 +693,9 @@ export default function RemoteTimezonePage() {
             return
           }
 
-          const centerSegmentIndex = 288
+          const centerSegmentIndex = 720
           const centerPosition = centerSegmentIndex * segmentWidth
-          const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
+          const minuteOffset = (cityMinutes / 60) * segmentWidth
           const wrapperWidth = dialWrapper.offsetWidth
           const centerOffset = wrapperWidth / 2
           const finalPosition = centerPosition + minuteOffset - centerOffset
@@ -780,20 +766,20 @@ export default function RemoteTimezonePage() {
         const cityTimeParts = timezone ? getTimeInTimezone(now, timezone) : { minute: 0 }
         const currentMinutes = cityTimeParts.minute
 
-        const centerSegmentIndex = 288
+        const centerSegmentIndex = 720
         const centerPosition = centerSegmentIndex * segmentWidth
-        // More precise calculation: each segment represents 30 minutes
-        const currentMinutesPixelOffset = (currentMinutes / 60) * (segmentWidth * 2)
+        // Each segment represents 60 minutes
+        const currentMinutesPixelOffset = (currentMinutes / 60) * segmentWidth
         const actualCurrentPosition = centerPosition + currentMinutesPixelOffset
 
         const trackPositionAtIndicator = -newOffset + centerOfWrapper
         const pixelOffset = trackPositionAtIndicator - actualCurrentPosition
-        // Each pair of segments represents 60 minutes
-        const minuteDiff = (pixelOffset / (segmentWidth * 2)) * 60
+        // Each segment represents 60 minutes
+        const minuteDiff = (pixelOffset / segmentWidth) * 60
 
         currentMinuteOffset = Math.round(minuteDiff)
 
-        const pixelsPerMinute = (segmentWidth * 2) / 60
+        const pixelsPerMinute = segmentWidth / 60
         const totalMinutesFromCenter = pixelOffset / pixelsPerMinute
         const currentMinute = Math.round(totalMinutesFromCenter)
 
@@ -859,9 +845,9 @@ export default function RemoteTimezonePage() {
           return
         }
 
-        const centerSegmentIndex = 288
+        const centerSegmentIndex = 720
         const centerPosition = centerSegmentIndex * segmentWidth
-        const minuteOffset = (cityMinutes / 60) * (segmentWidth * 2)
+        const minuteOffset = (cityMinutes / 60) * segmentWidth
         const wrapperWidth = dialWrapper.offsetWidth
         const centerOffset = wrapperWidth / 2
         const finalPosition = centerPosition + minuteOffset - centerOffset
