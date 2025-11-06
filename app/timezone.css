@@ -16,7 +16,8 @@ body {
 }
 
 .container {
-  max-width: 1000px;
+  /* Reduced max-width from 1000px to 800px */
+  max-width: 800px;
   margin: 0 auto;
   transition: transform 0.3s ease, margin-right 0.3s ease;
 }
@@ -337,6 +338,8 @@ h1 {
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
+  /* Removed fixed font-size to allow Tailwind responsive classes to work */
+  white-space: nowrap;
 }
 
 .header-buttons {
@@ -580,14 +583,13 @@ h1 {
 }
 
 .city-dial-container.local {
-  
 }
 
 .city-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
- 
+
   gap: 8px;
   min-height: 60px;
 }
@@ -603,7 +605,6 @@ h1 {
   font-weight: bold;
   color: #333;
   display: inline;
-
 }
 
 .dark .city-name {
@@ -1035,7 +1036,6 @@ h1 {
   }
 
   .header-title {
-    font-size: 1.3rem;
   }
 
   .icon-button {
