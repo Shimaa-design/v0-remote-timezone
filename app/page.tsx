@@ -26,7 +26,7 @@ export default function RemoteTimezonePage() {
 
     const cities = [
       // North America
-      { name: "New York", country: "USA", timezone: "America/New_York", lat: 40.7128, lng: -74.006 },
+      { name: "New York", country: "USA", timezone: "America/New_York", lat: 40.7128, lng: -74.0060 },
       { name: "Los Angeles", country: "USA", timezone: "America/Los_Angeles", lat: 34.0522, lng: -118.2437 },
       { name: "Chicago", country: "USA", timezone: "America/Chicago", lat: 41.8781, lng: -87.6298 },
       { name: "Toronto", country: "Canada", timezone: "America/Toronto", lat: 43.6532, lng: -79.3832 },
@@ -38,29 +38,23 @@ export default function RemoteTimezonePage() {
       { name: "Denver", country: "USA", timezone: "America/Denver", lat: 39.7392, lng: -104.9903 },
       { name: "Seattle", country: "USA", timezone: "America/Los_Angeles", lat: 47.6062, lng: -122.3321 },
       { name: "Boston", country: "USA", timezone: "America/New_York", lat: 42.3601, lng: -71.0589 },
-      { name: "Phoenix", country: "USA", timezone: "America/Phoenix", lat: 33.4484, lng: -112.074 },
-      { name: "Dallas", country: "USA", timezone: "America/Chicago", lat: 32.7767, lng: -96.797 },
-      { name: "Atlanta", country: "USA", timezone: "America/New_York", lat: 33.749, lng: -84.388 },
+      { name: "Phoenix", country: "USA", timezone: "America/Phoenix", lat: 33.4484, lng: -112.0740 },
+      { name: "Dallas", country: "USA", timezone: "America/Chicago", lat: 32.7767, lng: -96.7970 },
+      { name: "Atlanta", country: "USA", timezone: "America/New_York", lat: 33.7490, lng: -84.3880 },
       { name: "Honolulu", country: "USA", timezone: "Pacific/Honolulu", lat: 21.3099, lng: -157.8581 },
       { name: "Anchorage", country: "USA", timezone: "America/Anchorage", lat: 61.2181, lng: -149.9003 },
       // South America
       { name: "São Paulo", country: "Brazil", timezone: "America/Sao_Paulo", lat: -23.5505, lng: -46.6333 },
-      {
-        name: "Buenos Aires",
-        country: "Argentina",
-        timezone: "America/Argentina/Buenos_Aires",
-        lat: -34.6037,
-        lng: -58.3816,
-      },
+      { name: "Buenos Aires", country: "Argentina", timezone: "America/Argentina/Buenos_Aires", lat: -34.6037, lng: -58.3816 },
       { name: "Rio de Janeiro", country: "Brazil", timezone: "America/Sao_Paulo", lat: -22.9068, lng: -43.1729 },
       { name: "Lima", country: "Peru", timezone: "America/Lima", lat: -12.0464, lng: -77.0428 },
-      { name: "Bogotá", country: "Colombia", timezone: "America/Bogota", lat: 4.711, lng: -74.0721 },
+      { name: "Bogotá", country: "Colombia", timezone: "America/Bogota", lat: 4.7110, lng: -74.0721 },
       { name: "Santiago", country: "Chile", timezone: "America/Santiago", lat: -33.4489, lng: -70.6693 },
       { name: "Caracas", country: "Venezuela", timezone: "America/Caracas", lat: 10.4806, lng: -66.9036 },
       // Europe
       { name: "London", country: "UK", timezone: "Europe/London", lat: 51.5074, lng: -0.1278 },
       { name: "Paris", country: "France", timezone: "Europe/Paris", lat: 48.8566, lng: 2.3522 },
-      { name: "Berlin", country: "Germany", timezone: "Europe/Berlin", lat: 52.52, lng: 13.405 },
+      { name: "Berlin", country: "Germany", timezone: "Europe/Berlin", lat: 52.5200, lng: 13.4050 },
       { name: "Madrid", country: "Spain", timezone: "Europe/Madrid", lat: 40.4168, lng: -3.7038 },
       { name: "Rome", country: "Italy", timezone: "Europe/Rome", lat: 41.9028, lng: 12.4964 },
       { name: "Amsterdam", country: "Netherlands", timezone: "Europe/Amsterdam", lat: 52.3676, lng: 4.9041 },
@@ -83,24 +77,24 @@ export default function RemoteTimezonePage() {
       { name: "Hong Kong", country: "Hong Kong", timezone: "Asia/Hong_Kong", lat: 22.3193, lng: 114.1694 },
       { name: "Singapore", country: "Singapore", timezone: "Asia/Singapore", lat: 1.3521, lng: 103.8198 },
       { name: "Dubai", country: "UAE", timezone: "Asia/Dubai", lat: 25.2048, lng: 55.2708 },
-      { name: "Mumbai", country: "India", timezone: "Asia/Kolkata", lat: 19.076, lng: 72.8777 },
+      { name: "Mumbai", country: "India", timezone: "Asia/Kolkata", lat: 19.0760, lng: 72.8777 },
       { name: "Shanghai", country: "China", timezone: "Asia/Shanghai", lat: 31.2304, lng: 121.4737 },
       { name: "Beijing", country: "China", timezone: "Asia/Shanghai", lat: 39.9042, lng: 116.4074 },
       { name: "Bangkok", country: "Thailand", timezone: "Asia/Bangkok", lat: 13.7563, lng: 100.5018 },
-      { name: "Seoul", country: "South Korea", timezone: "Asia/Seoul", lat: 37.5665, lng: 126.978 },
+      { name: "Seoul", country: "South Korea", timezone: "Asia/Seoul", lat: 37.5665, lng: 126.9780 },
       { name: "Manila", country: "Philippines", timezone: "Asia/Manila", lat: 14.5995, lng: 120.9842 },
       { name: "Jakarta", country: "Indonesia", timezone: "Asia/Jakarta", lat: -6.2088, lng: 106.8456 },
-      { name: "Kuala Lumpur", country: "Malaysia", timezone: "Asia/Kuala_Lumpur", lat: 3.139, lng: 101.6869 },
+      { name: "Kuala Lumpur", country: "Malaysia", timezone: "Asia/Kuala_Lumpur", lat: 3.1390, lng: 101.6869 },
       { name: "Delhi", country: "India", timezone: "Asia/Kolkata", lat: 28.7041, lng: 77.1025 },
       { name: "Bangalore", country: "India", timezone: "Asia/Kolkata", lat: 12.9716, lng: 77.5946 },
       { name: "Karachi", country: "Pakistan", timezone: "Asia/Karachi", lat: 24.8607, lng: 67.0011 },
       { name: "Dhaka", country: "Bangladesh", timezone: "Asia/Dhaka", lat: 23.8103, lng: 90.4125 },
-      { name: "Tehran", country: "Iran", timezone: "Asia/Tehran", lat: 35.6892, lng: 51.389 },
+      { name: "Tehran", country: "Iran", timezone: "Asia/Tehran", lat: 35.6892, lng: 51.3890 },
       { name: "Ramallah", country: "Palestine", timezone: "Asia/Jerusalem", lat: 31.9038, lng: 35.2034 },
       { name: "Riyadh", country: "Saudi Arabia", timezone: "Asia/Riyadh", lat: 24.7136, lng: 46.6753 },
-      { name: "Doha", country: "Qatar", timezone: "Asia/Qatar", lat: 25.2854, lng: 51.531 },
+      { name: "Doha", country: "Qatar", timezone: "Asia/Qatar", lat: 25.2854, lng: 51.5310 },
       { name: "Abu Dhabi", country: "UAE", timezone: "Asia/Dubai", lat: 24.4539, lng: 54.3773 },
-      { name: "Taipei", country: "Taiwan", timezone: "Asia/Taipei", lat: 25.033, lng: 121.5654 },
+      { name: "Taipei", country: "Taiwan", timezone: "Asia/Taipei", lat: 25.0330, lng: 121.5654 },
       { name: "Hanoi", country: "Vietnam", timezone: "Asia/Ho_Chi_Minh", lat: 21.0285, lng: 105.8542 },
       // Africa
       { name: "Cairo", country: "Egypt", timezone: "Africa/Cairo", lat: 30.0444, lng: 31.2357 },
@@ -108,7 +102,7 @@ export default function RemoteTimezonePage() {
       { name: "Johannesburg", country: "South Africa", timezone: "Africa/Johannesburg", lat: -26.2041, lng: 28.0473 },
       { name: "Nairobi", country: "Kenya", timezone: "Africa/Nairobi", lat: -1.2864, lng: 36.8172 },
       { name: "Casablanca", country: "Morocco", timezone: "Africa/Casablanca", lat: 33.5731, lng: -7.5898 },
-      { name: "Accra", country: "Ghana", timezone: "Africa/Accra", lat: 5.6037, lng: -0.187 },
+      { name: "Accra", country: "Ghana", timezone: "Africa/Accra", lat: 5.6037, lng: -0.1870 },
       { name: "Algiers", country: "Algeria", timezone: "Africa/Algiers", lat: 36.7538, lng: 3.0588 },
       { name: "Tunis", country: "Tunisia", timezone: "Africa/Tunis", lat: 36.8065, lng: 10.1815 },
       // Oceania
@@ -118,45 +112,46 @@ export default function RemoteTimezonePage() {
       { name: "Perth", country: "Australia", timezone: "Australia/Perth", lat: -31.9505, lng: 115.8605 },
       { name: "Auckland", country: "New Zealand", timezone: "Pacific/Auckland", lat: -36.8485, lng: 174.7633 },
       { name: "Wellington", country: "New Zealand", timezone: "Pacific/Auckland", lat: -41.2865, lng: 174.7762 },
-      { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji", lat: -17.7134, lng: 178.065 },
+      { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji", lat: -17.7134, lng: 178.0650 },
     ]
 
     // Calculate distance between two coordinates using Haversine formula
     function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
       const R = 6371 // Earth's radius in kilometers
-      const dLat = ((lat2 - lat1) * Math.PI) / 180
-      const dLng = ((lng2 - lng1) * Math.PI) / 180
+      const dLat = (lat2 - lat1) * Math.PI / 180
+      const dLng = (lng2 - lng1) * Math.PI / 180
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2)
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       return R * c
     }
 
     // Find nearest cities based on coordinates
-    function findNearestCities(lat: number, lng: number, limit = 5) {
+    function findNearestCities(lat: number, lng: number, limit: number = 5) {
       return cities
-        .map((city) => ({
+        .map(city => ({
           ...city,
-          distance: calculateDistance(lat, lng, city.lat, city.lng),
+          distance: calculateDistance(lat, lng, city.lat, city.lng)
         }))
         .sort((a, b) => a.distance - b.distance)
         .slice(0, limit)
     }
 
     // Simple geocoding fallback - tries to extract coordinates from common city searches
-    function tryGeocodeSearch(searchQuery: string): { lat: number; lng: number } | null {
+    function tryGeocodeSearch(searchQuery: string): { lat: number, lng: number } | null {
       // For Edinburgh, Scotland - hardcoded as example
-      const knownCities: { [key: string]: { lat: number; lng: number } } = {
-        edinburgh: { lat: 55.9533, lng: -3.1883 },
-        glasgow: { lat: 55.8642, lng: -4.2518 },
-        manchester: { lat: 53.4808, lng: -2.2426 },
-        birmingham: { lat: 52.4862, lng: -1.8904 },
-        liverpool: { lat: 53.4084, lng: -2.9916 },
-        leeds: { lat: 53.8008, lng: -1.5491 },
-        bristol: { lat: 51.4545, lng: -2.5879 },
-        cardiff: { lat: 51.4816, lng: -3.1791 },
-        belfast: { lat: 54.5973, lng: -5.9301 },
+      const knownCities: { [key: string]: { lat: number, lng: number } } = {
+        "edinburgh": { lat: 55.9533, lng: -3.1883 },
+        "glasgow": { lat: 55.8642, lng: -4.2518 },
+        "manchester": { lat: 53.4808, lng: -2.2426 },
+        "birmingham": { lat: 52.4862, lng: -1.8904 },
+        "liverpool": { lat: 53.4084, lng: -2.9916 },
+        "leeds": { lat: 53.8008, lng: -1.5491 },
+        "bristol": { lat: 51.4545, lng: -2.5879 },
+        "cardiff": { lat: 51.4816, lng: -3.1791 },
+        "belfast": { lat: 54.5973, lng: -5.9301 },
       }
 
       const queryLower = searchQuery.toLowerCase()
@@ -169,65 +164,65 @@ export default function RemoteTimezonePage() {
     }
 
     const countryFlags: { [key: string]: string } = {
-      USA: "🇺🇸",
-      Canada: "🇨🇦",
-      Mexico: "🇲🇽",
-      Brazil: "🇧🇷",
-      Argentina: "🇦🇷",
-      Peru: "🇵🇪",
-      Colombia: "🇨🇴",
-      Chile: "🇨🇱",
-      Venezuela: "🇻🇪",
-      UK: "🇬🇧",
-      France: "🇫🇷",
-      Germany: "🇩🇪",
-      Spain: "🇪🇸",
-      Italy: "🇮🇹",
-      Netherlands: "🇳🇱",
-      Belgium: "🇧🇪",
-      Austria: "🇦🇹",
-      Czechia: "🇨🇿",
-      Poland: "🇵🇱",
-      Sweden: "🇸🇪",
-      Denmark: "🇩🇰",
-      Norway: "🇳🇴",
-      Finland: "🇫🇮",
-      Russia: "🇷🇺",
-      Turkey: "🇹🇷",
-      Greece: "🇬🇷",
-      Portugal: "🇵🇹",
-      Ireland: "🇮🇪",
-      Switzerland: "🇨🇭",
-      Japan: "🇯🇵",
+      "USA": "🇺🇸",
+      "Canada": "🇨🇦",
+      "Mexico": "🇲🇽",
+      "Brazil": "🇧🇷",
+      "Argentina": "🇦🇷",
+      "Peru": "🇵🇪",
+      "Colombia": "🇨🇴",
+      "Chile": "🇨🇱",
+      "Venezuela": "🇻🇪",
+      "UK": "🇬🇧",
+      "France": "🇫🇷",
+      "Germany": "🇩🇪",
+      "Spain": "🇪🇸",
+      "Italy": "🇮🇹",
+      "Netherlands": "🇳🇱",
+      "Belgium": "🇧🇪",
+      "Austria": "🇦🇹",
+      "Czechia": "🇨🇿",
+      "Poland": "🇵🇱",
+      "Sweden": "🇸🇪",
+      "Denmark": "🇩🇰",
+      "Norway": "🇳🇴",
+      "Finland": "🇫🇮",
+      "Russia": "🇷🇺",
+      "Turkey": "🇹🇷",
+      "Greece": "🇬🇷",
+      "Portugal": "🇵🇹",
+      "Ireland": "🇮🇪",
+      "Switzerland": "🇨🇭",
+      "Japan": "🇯🇵",
       "Hong Kong": "🇭🇰",
-      Singapore: "🇸🇬",
-      UAE: "🇦🇪",
-      India: "🇮🇳",
-      China: "🇨🇳",
-      Thailand: "🇹🇭",
+      "Singapore": "🇸🇬",
+      "UAE": "🇦🇪",
+      "India": "🇮🇳",
+      "China": "🇨🇳",
+      "Thailand": "🇹🇭",
       "South Korea": "🇰🇷",
-      Philippines: "🇵🇭",
-      Indonesia: "🇮🇩",
-      Malaysia: "🇲🇾",
-      Pakistan: "🇵🇰",
-      Bangladesh: "🇧🇩",
-      Iran: "🇮🇷",
-      Palestine: "🇵🇸",
+      "Philippines": "🇵🇭",
+      "Indonesia": "🇮🇩",
+      "Malaysia": "🇲🇾",
+      "Pakistan": "🇵🇰",
+      "Bangladesh": "🇧🇩",
+      "Iran": "🇮🇷",
+      "Palestine": "🇵🇸",
       "Saudi Arabia": "🇸🇦",
-      Qatar: "🇶🇦",
-      Taiwan: "🇹🇼",
-      Vietnam: "🇻🇳",
-      Egypt: "🇪🇬",
-      Nigeria: "🇳🇬",
+      "Qatar": "🇶🇦",
+      "Taiwan": "🇹🇼",
+      "Vietnam": "🇻🇳",
+      "Egypt": "🇪🇬",
+      "Nigeria": "🇳🇬",
       "South Africa": "🇿🇦",
-      Kenya: "🇰🇪",
-      Morocco: "🇲🇦",
-      Ghana: "🇬🇭",
-      Algeria: "🇩🇿",
-      Tunisia: "🇹🇳",
-      Australia: "🇦🇺",
+      "Kenya": "🇰🇪",
+      "Morocco": "🇲🇦",
+      "Ghana": "🇬🇭",
+      "Algeria": "🇩🇿",
+      "Tunisia": "🇹🇳",
+      "Australia": "🇦🇺",
       "New Zealand": "🇳🇿",
-      Fiji: "🇫🇯",
+      "Fiji": "🇫🇯"
     }
 
     let selectedCities = new Map()
@@ -237,27 +232,27 @@ export default function RemoteTimezonePage() {
 
     // Helper function to correctly get time components in a specific timezone
     function getTimeInTimezone(date: Date, timezone: string) {
-      const formatter = new Intl.DateTimeFormat("en-US", {
+      const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: timezone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
       })
 
       const parts = formatter.formatToParts(date)
-      const getValue = (type: string) => parts.find((p) => p.type === type)?.value || "0"
+      const getValue = (type: string) => parts.find(p => p.type === type)?.value || '0'
 
       return {
-        year: Number.parseInt(getValue("year")),
-        month: Number.parseInt(getValue("month")) - 1,
-        day: Number.parseInt(getValue("day")),
-        hour: Number.parseInt(getValue("hour")),
-        minute: Number.parseInt(getValue("minute")),
-        second: Number.parseInt(getValue("second")),
+        year: parseInt(getValue('year')),
+        month: parseInt(getValue('month')) - 1,
+        day: parseInt(getValue('day')),
+        hour: parseInt(getValue('hour')),
+        minute: parseInt(getValue('minute')),
+        second: parseInt(getValue('second'))
       }
     }
 
@@ -294,18 +289,11 @@ export default function RemoteTimezonePage() {
           const parsed = JSON.parse(saved)
           if (Array.isArray(parsed)) {
             selectedCities = new Map()
-            const seenTimezones = new Set<string>()
-
             parsed.forEach((city: any) => {
               if (typeof city === "object" && city.name && city.timezone) {
-                if (!seenTimezones.has(city.timezone) && city.timezone !== localTimezone) {
-                  selectedCities.set(`${city.name}-${city.timezone}`, city)
-                  seenTimezones.add(city.timezone)
-                }
+                selectedCities.set(`${city.name}-${city.timezone}`, city)
               }
             })
-
-            saveSelectedCities()
           }
         }
       } catch (e) {
@@ -331,22 +319,10 @@ export default function RemoteTimezonePage() {
       const localTimeParts = getTimeInTimezone(now, localTimezone)
 
       // Create dates in UTC to compare
-      const cityTime = Date.UTC(
-        cityTimeParts.year,
-        cityTimeParts.month,
-        cityTimeParts.day,
-        cityTimeParts.hour,
-        cityTimeParts.minute,
-        cityTimeParts.second,
-      )
-      const localTime = Date.UTC(
-        localTimeParts.year,
-        localTimeParts.month,
-        localTimeParts.day,
-        localTimeParts.hour,
-        localTimeParts.minute,
-        localTimeParts.second,
-      )
+      const cityTime = Date.UTC(cityTimeParts.year, cityTimeParts.month, cityTimeParts.day,
+                                 cityTimeParts.hour, cityTimeParts.minute, cityTimeParts.second)
+      const localTime = Date.UTC(localTimeParts.year, localTimeParts.month, localTimeParts.day,
+                                  localTimeParts.hour, localTimeParts.minute, localTimeParts.second)
 
       const diffMs = cityTime - localTime
       const diffHours = Math.round(diffMs / (1000 * 60 * 60))
@@ -379,15 +355,14 @@ export default function RemoteTimezonePage() {
         if (coords) {
           const nearestCities = findNearestCities(coords.lat, coords.lng, 5)
 
-          floatingSearchResults.innerHTML =
-            '<div class="floating-search-no-results">No exact match. Showing nearest cities:</div>'
+          floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No exact match. Showing nearest cities:</div>'
 
           nearestCities.forEach((cityWithDistance) => {
             const city = cityWithDistance
             const offset = getTimezoneOffset(city.timezone)
             const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
             const cityKey = `${city.name}-${city.timezone}`
-            const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
+            const isAlreadySelected = selectedCities.has(cityKey)
             const flag = countryFlags[city.country] || "🏳️"
             const distanceKm = Math.round(cityWithDistance.distance)
 
@@ -432,7 +407,7 @@ export default function RemoteTimezonePage() {
         const offset = getTimezoneOffset(city.timezone)
         const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
         const cityKey = `${city.name}-${city.timezone}`
-        const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
+        const isAlreadySelected = selectedCities.has(cityKey)
         const flag = countryFlags[city.country] || "🏳️"
 
         const resultItem = document.createElement("div")
@@ -541,11 +516,11 @@ export default function RemoteTimezonePage() {
       if (hour24 === 6) {
         return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#FDB813" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
       } else if (hour24 === 12) {
-        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#FDB813" stroke="#FDB813" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#FDB813" stroke="#FDB813" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
       } else if (hour24 === 18) {
         return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>`
       } else if (hour24 === 22) {
-        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#E8E8E8" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>`
+        return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#E8E8E8" stroke="#E8E8E8" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>`
       } else if (hour24 === 0) {
         return `<div class="transition-icon"><svg viewBox="0 0 24 24" fill="#C0C0C0" stroke="#C0C0C0" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>`
       }
@@ -562,22 +537,10 @@ export default function RemoteTimezonePage() {
       const localTimeParts = getTimeInTimezone(now, localTimezone)
 
       // Create dates in UTC to compare
-      const cityTime = Date.UTC(
-        cityTimeParts.year,
-        cityTimeParts.month,
-        cityTimeParts.day,
-        cityTimeParts.hour,
-        cityTimeParts.minute,
-        cityTimeParts.second,
-      )
-      const localTime = Date.UTC(
-        localTimeParts.year,
-        localTimeParts.month,
-        localTimeParts.day,
-        localTimeParts.hour,
-        localTimeParts.minute,
-        localTimeParts.second,
-      )
+      const cityTime = Date.UTC(cityTimeParts.year, cityTimeParts.month, cityTimeParts.day,
+                                 cityTimeParts.hour, cityTimeParts.minute, cityTimeParts.second)
+      const localTime = Date.UTC(localTimeParts.year, localTimeParts.month, localTimeParts.day,
+                                  localTimeParts.hour, localTimeParts.minute, localTimeParts.second)
 
       const diffMs = cityTime - localTime
       const diffHours = Math.round(diffMs / (1000 * 60 * 60))
@@ -725,7 +688,7 @@ export default function RemoteTimezonePage() {
 
           // Ensure we have valid dimensions before positioning
           if (!segmentWidth || segmentWidth === 0) {
-            console.warn("Segment width not ready, retrying...")
+            console.warn('Segment width not ready, retrying...')
             setTimeout(() => initializeDial(dialWrapper, timezone), 50)
             return
           }
@@ -758,7 +721,7 @@ export default function RemoteTimezonePage() {
       const dialWrapper = e.currentTarget as HTMLElement
       const dialTrack = dialWrapper.querySelector(".dial-track") as HTMLElement
       const transform = dialTrack.style.transform
-      const match = transform.match(/translateX$$(-?\d+(\.\d+)?)px$$/)
+      const match = transform.match(/translateX\(([^)]+)px\)/)
       dragStartOffset = match ? Number.parseFloat(match[1]) : 0
 
       dialWrapper.style.cursor = "grabbing"
@@ -998,9 +961,7 @@ export default function RemoteTimezonePage() {
           <div className="header-left">
             <HamburgerMenu onClick={() => setIsSidebarOpen(true)} />
           </div>
-          <h1 className="tracking-normal font-semibold leading-6 header-title text-center font-serif whitespace-nowrap text-lg md:text-3xl">
-            🕒 Remote Timezone
-          </h1>
+          <h1 className="tracking-normal font-semibold leading-6 header-title text-center font-serif">🕒 Remote Timezone</h1>
           <div className="header-buttons">
             <button className="icon-button" id="resetButton" title="Reset to Current Time">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
