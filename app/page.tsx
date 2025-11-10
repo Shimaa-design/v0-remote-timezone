@@ -139,9 +139,9 @@ export default function RemoteTimezonePage() {
         .slice(0, limit)
     }
 
-    // Simple geocoding fallback - tries to extract coordinates from common city searches
-    function tryGeocodeSearch(searchQuery: string): { lat: number, lng: number } | null {
-      // For Edinburgh, Scotland - hardcoded as example
+    // Geocoding using OpenStreetMap Nominatim API
+    async function tryGeocodeSearch(searchQuery: string): Promise<{ lat: number, lng: number } | null> {
+      // First check hardcoded cities for instant results
       const knownCities: { [key: string]: { lat: number, lng: number } } = {
         "edinburgh": { lat: 55.9533, lng: -3.1883 },
         "glasgow": { lat: 55.8642, lng: -4.2518 },
@@ -161,6 +161,34 @@ export default function RemoteTimezonePage() {
           return coords
         }
       }
+
+      // If not in hardcoded list, try geocoding API
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`,
+          {
+            headers: {
+              'User-Agent': 'RemoteTimezoneApp/1.0'
+            }
+          }
+        )
+
+        if (!response.ok) {
+          return null
+        }
+
+        const data = await response.json()
+
+        if (data && data.length > 0) {
+          return {
+            lat: parseFloat(data[0].lat),
+            lng: parseFloat(data[0].lon)
+          }
+        }
+      } catch (error) {
+        console.error('Geocoding error:', error)
+      }
+
       return null
     }
 
@@ -330,7 +358,7 @@ export default function RemoteTimezonePage() {
       return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
     }
 
-    function renderFloatingSearchResults(query: string) {
+    async function renderFloatingSearchResults(query: string) {
       if (!floatingSearchResults) return
 
       const searchLower = query.toLowerCase().trim()
@@ -352,7 +380,11 @@ export default function RemoteTimezonePage() {
 
       // If no exact match, try to find nearest cities
       if (filteredCities.length === 0) {
-        const coords = tryGeocodeSearch(query)
+        // Show loading state
+        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">Searching...</div>'
+        floatingSearchResults.style.display = "block"
+
+        const coords = await tryGeocodeSearch(query)
         if (coords) {
           const nearestCities = findNearestCities(coords.lat, coords.lng, 5)
 
