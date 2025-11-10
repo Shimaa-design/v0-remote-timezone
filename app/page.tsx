@@ -362,7 +362,7 @@ export default function RemoteTimezonePage() {
             const offset = getTimezoneOffset(city.timezone)
             const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
             const cityKey = `${city.name}-${city.timezone}`
-            const isAlreadySelected = selectedCities.has(cityKey)
+            const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
             const flag = countryFlags[city.country] || "🏳️"
             const distanceKm = Math.round(cityWithDistance.distance)
 
@@ -407,7 +407,7 @@ export default function RemoteTimezonePage() {
         const offset = getTimezoneOffset(city.timezone)
         const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
         const cityKey = `${city.name}-${city.timezone}`
-        const isAlreadySelected = selectedCities.has(cityKey)
+        const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
         const flag = countryFlags[city.country] || "🏳️"
 
         const resultItem = document.createElement("div")
