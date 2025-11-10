@@ -152,6 +152,7 @@ export default function RemoteTimezonePage() {
         "bristol": { lat: 51.4545, lng: -2.5879 },
         "cardiff": { lat: 51.4816, lng: -3.1791 },
         "belfast": { lat: 54.5973, lng: -5.9301 },
+        "arizona": { lat: 34.0489, lng: -111.0937 },
       }
 
       const queryLower = searchQuery.toLowerCase()
