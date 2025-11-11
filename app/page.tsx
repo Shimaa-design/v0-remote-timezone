@@ -140,19 +140,19 @@ export default function RemoteTimezonePage() {
     }
 
     // Geocoding using OpenStreetMap Nominatim API
-    async function tryGeocodeSearch(searchQuery: string): Promise<{ lat: number, lng: number } | null> {
+    async function tryGeocodeSearch(searchQuery: string): Promise<{ lat: number, lng: number, displayName?: string } | null> {
       // First check hardcoded cities for instant results
-      const knownCities: { [key: string]: { lat: number, lng: number } } = {
-        "edinburgh": { lat: 55.9533, lng: -3.1883 },
-        "glasgow": { lat: 55.8642, lng: -4.2518 },
-        "manchester": { lat: 53.4808, lng: -2.2426 },
-        "birmingham": { lat: 52.4862, lng: -1.8904 },
-        "liverpool": { lat: 53.4084, lng: -2.9916 },
-        "leeds": { lat: 53.8008, lng: -1.5491 },
-        "bristol": { lat: 51.4545, lng: -2.5879 },
-        "cardiff": { lat: 51.4816, lng: -3.1791 },
-        "belfast": { lat: 54.5973, lng: -5.9301 },
-        "arizona": { lat: 34.0489, lng: -111.0937 },
+      const knownCities: { [key: string]: { lat: number, lng: number, displayName: string } } = {
+        "edinburgh": { lat: 55.9533, lng: -3.1883, displayName: "Edinburgh, Scotland, United Kingdom" },
+        "glasgow": { lat: 55.8642, lng: -4.2518, displayName: "Glasgow, Scotland, United Kingdom" },
+        "manchester": { lat: 53.4808, lng: -2.2426, displayName: "Manchester, England, United Kingdom" },
+        "birmingham": { lat: 52.4862, lng: -1.8904, displayName: "Birmingham, England, United Kingdom" },
+        "liverpool": { lat: 53.4084, lng: -2.9916, displayName: "Liverpool, England, United Kingdom" },
+        "leeds": { lat: 53.8008, lng: -1.5491, displayName: "Leeds, England, United Kingdom" },
+        "bristol": { lat: 51.4545, lng: -2.5879, displayName: "Bristol, England, United Kingdom" },
+        "cardiff": { lat: 51.4816, lng: -3.1791, displayName: "Cardiff, Wales, United Kingdom" },
+        "belfast": { lat: 54.5973, lng: -5.9301, displayName: "Belfast, Northern Ireland, United Kingdom" },
+        "arizona": { lat: 34.0489, lng: -111.0937, displayName: "Arizona, United States" },
       }
 
       const queryLower = searchQuery.toLowerCase()
@@ -182,7 +182,8 @@ export default function RemoteTimezonePage() {
         if (data && data.length > 0) {
           return {
             lat: parseFloat(data[0].lat),
-            lng: parseFloat(data[0].lon)
+            lng: parseFloat(data[0].lon),
+            displayName: data[0].display_name
           }
         }
       } catch (error) {
@@ -380,15 +381,26 @@ export default function RemoteTimezonePage() {
 
       // If no exact match, try to find nearest cities
       if (filteredCities.length === 0) {
-        // Show loading state
-        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">Searching...</div>'
+        // Show loading state with spinner
+        floatingSearchResults.innerHTML = `
+          <div class="floating-search-no-results" style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #666; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            Searching for location...
+          </div>
+          <style>
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          </style>
+        `
         floatingSearchResults.style.display = "block"
 
-        const coords = await tryGeocodeSearch(query)
-        if (coords) {
-          const nearestCities = findNearestCities(coords.lat, coords.lng, 5)
+        const result = await tryGeocodeSearch(query)
+        if (result) {
+          const nearestCities = findNearestCities(result.lat, result.lng, 5)
+          const locationName = result.displayName || query
 
-          floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No exact match. Showing nearest cities:</div>'
+          floatingSearchResults.innerHTML = `<div class="floating-search-no-results">Showing nearest cities to ${locationName}:</div>`
 
           nearestCities.forEach((cityWithDistance) => {
             const city = cityWithDistance
