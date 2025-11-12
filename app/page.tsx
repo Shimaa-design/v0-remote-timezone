@@ -144,7 +144,7 @@ export default function RemoteTimezonePage() {
       // If not in hardcoded list, try geocoding API
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=10&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=20&addressdetails=1`,
           {
             headers: {
               'User-Agent': 'RemoteTimezoneApp/1.0'
@@ -166,6 +166,13 @@ export default function RemoteTimezonePage() {
           const filteredData = data.filter((item: any) => {
             const type = item.type?.toLowerCase() || ''
             const itemClass = item.class?.toLowerCase() || ''
+            const displayName = item.display_name?.toLowerCase() || ''
+
+            // Exclude very specific Greek/foreign small locations with many commas (too specific)
+            const commaCount = (displayName.match(/,/g) || []).length
+            if (commaCount > 6) {
+              return false
+            }
 
             // Include if type matches valid geographic types
             if (validTypes.some(validType => type.includes(validType))) {
@@ -185,7 +192,15 @@ export default function RemoteTimezonePage() {
             return false
           })
 
-          return filteredData.slice(0, 5).map((item: any) => ({
+          // Sort by importance (OSM provides importance score, higher is better)
+          // Major cities like Alexandria, Egypt will have higher importance
+          const sortedData = filteredData.sort((a: any, b: any) => {
+            const importanceA = parseFloat(a.importance || 0)
+            const importanceB = parseFloat(b.importance || 0)
+            return importanceB - importanceA
+          })
+
+          return sortedData.slice(0, 5).map((item: any) => ({
             lat: parseFloat(item.lat),
             lng: parseFloat(item.lon),
             displayName: item.display_name
