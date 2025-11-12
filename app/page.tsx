@@ -139,28 +139,78 @@ export default function RemoteTimezonePage() {
         .slice(0, limit)
     }
 
-    // Simple geocoding fallback - tries to extract coordinates from common city searches
-    function tryGeocodeSearch(searchQuery: string): { lat: number, lng: number } | null {
-      // For Edinburgh, Scotland - hardcoded as example
-      const knownCities: { [key: string]: { lat: number, lng: number } } = {
-        "edinburgh": { lat: 55.9533, lng: -3.1883 },
-        "glasgow": { lat: 55.8642, lng: -4.2518 },
-        "manchester": { lat: 53.4808, lng: -2.2426 },
-        "birmingham": { lat: 52.4862, lng: -1.8904 },
-        "liverpool": { lat: 53.4084, lng: -2.9916 },
-        "leeds": { lat: 53.8008, lng: -1.5491 },
-        "bristol": { lat: 51.4545, lng: -2.5879 },
-        "cardiff": { lat: 51.4816, lng: -3.1791 },
-        "belfast": { lat: 54.5973, lng: -5.9301 },
+    // Geocoding using OpenStreetMap Nominatim API - fetch multiple results
+    async function geocodeLocation(searchQuery: string): Promise<Array<{ lat: number, lng: number, displayName: string }>> {
+      // If not in hardcoded list, try geocoding API
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=20&addressdetails=1`,
+          {
+            headers: {
+              'User-Agent': 'RemoteTimezoneApp/1.0'
+            }
+          }
+        )
+
+        if (!response.ok) {
+          return []
+        }
+
+        const data = await response.json()
+
+        if (data && data.length > 0) {
+          // Filter to only include geographic places (cities, states, countries, etc.)
+          // Exclude hotels, restaurants, shops, and other businesses
+          const validTypes = ['city', 'town', 'village', 'hamlet', 'suburb', 'state', 'province', 'country', 'region', 'county', 'municipality', 'administrative']
+
+          const filteredData = data.filter((item: any) => {
+            const type = item.type?.toLowerCase() || ''
+            const itemClass = item.class?.toLowerCase() || ''
+            const displayName = item.display_name?.toLowerCase() || ''
+
+            // Exclude very specific Greek/foreign small locations with many commas (too specific)
+            const commaCount = (displayName.match(/,/g) || []).length
+            if (commaCount > 6) {
+              return false
+            }
+
+            // Include if type matches valid geographic types
+            if (validTypes.some(validType => type.includes(validType))) {
+              return true
+            }
+
+            // Include if class is boundary or place (administrative divisions)
+            if (itemClass === 'boundary' || itemClass === 'place') {
+              return true
+            }
+
+            // Exclude tourism, amenity, shop, etc.
+            if (['tourism', 'amenity', 'shop', 'leisure', 'building'].includes(itemClass)) {
+              return false
+            }
+
+            return false
+          })
+
+          // Sort by importance (OSM provides importance score, higher is better)
+          // Major cities like Alexandria, Egypt will have higher importance
+          const sortedData = filteredData.sort((a: any, b: any) => {
+            const importanceA = parseFloat(a.importance || 0)
+            const importanceB = parseFloat(b.importance || 0)
+            return importanceB - importanceA
+          })
+
+          return sortedData.slice(0, 5).map((item: any) => ({
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            displayName: item.display_name
+          }))
+        }
+      } catch (error) {
+        console.error('Geocoding error:', error)
       }
 
-      const queryLower = searchQuery.toLowerCase()
-      for (const [cityName, coords] of Object.entries(knownCities)) {
-        if (queryLower.includes(cityName)) {
-          return coords
-        }
-      }
-      return null
+      return []
     }
 
     const countryFlags: { [key: string]: string } = {
@@ -329,7 +379,62 @@ export default function RemoteTimezonePage() {
       return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
     }
 
-    function renderFloatingSearchResults(query: string) {
+    function showNearestCities(lat: number, lng: number, locationName: string) {
+      if (!floatingSearchResults) return
+
+      // Show loading indicator while calculating
+      floatingSearchResults.innerHTML = `
+        <div class="floating-search-no-results" style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #666; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          Finding nearest cities...
+        </div>
+      `
+
+      // Use setTimeout to ensure loading state is visible
+      setTimeout(() => {
+        const nearestCities = findNearestCities(lat, lng, 5)
+
+        floatingSearchResults.innerHTML = `<div class="floating-search-no-results">Showing nearest cities to ${locationName}:</div>`
+
+        nearestCities.forEach((cityWithDistance) => {
+          const city = cityWithDistance
+          const offset = getTimezoneOffset(city.timezone)
+          const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+          const cityKey = `${city.name}-${city.timezone}`
+          const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
+          const flag = countryFlags[city.country] || "🏳️"
+          const distanceKm = Math.round(cityWithDistance.distance)
+
+          const resultItem = document.createElement("div")
+          resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
+          resultItem.innerHTML = `
+            <div class="floating-search-result-main">
+              <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
+              <div class="floating-search-result-timezone">${offsetDisplay}</div>
+            </div>
+            ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
+          `
+
+          if (!isAlreadySelected) {
+            resultItem.addEventListener("click", (e) => {
+              e.stopPropagation()
+              selectedCities.set(cityKey, city)
+              saveSelectedCities()
+              rebuildTimelines()
+              floatingSearchInput.value = ""
+              floatingSearchResults.innerHTML = ""
+              floatingSearchResults.style.display = "none"
+            })
+          }
+
+          floatingSearchResults.appendChild(resultItem)
+        })
+
+        floatingSearchResults.style.display = "block"
+      }, 100)
+    }
+
+    async function renderFloatingSearchResults(query: string) {
       if (!floatingSearchResults) return
 
       const searchLower = query.toLowerCase().trim()
@@ -349,43 +454,42 @@ export default function RemoteTimezonePage() {
           })
         : cities // Show all cities when query is empty
 
-      // If no exact match, try to find nearest cities
-      if (filteredCities.length === 0) {
-        const coords = tryGeocodeSearch(query)
-        if (coords) {
-          const nearestCities = findNearestCities(coords.lat, coords.lng, 5)
+      // If no exact match, show location suggestions from geocoding
+      if (filteredCities.length === 0 && searchLower.length >= 3) {
+        // Show loading state with spinner
+        floatingSearchResults.innerHTML = `
+          <div class="floating-search-no-results" style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #666; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            Searching for location...
+          </div>
+          <style>
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          </style>
+        `
+        floatingSearchResults.style.display = "block"
 
-          floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No exact match. Showing nearest cities:</div>'
+        const locations = await geocodeLocation(query)
+        if (locations.length > 0) {
+          floatingSearchResults.innerHTML = '<div class="floating-search-no-results">Select a location:</div>'
 
-          nearestCities.forEach((cityWithDistance) => {
-            const city = cityWithDistance
-            const offset = getTimezoneOffset(city.timezone)
-            const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
-            const cityKey = `${city.name}-${city.timezone}`
-            const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
-            const flag = countryFlags[city.country] || "🏳️"
-            const distanceKm = Math.round(cityWithDistance.distance)
-
+          locations.forEach((location) => {
             const resultItem = document.createElement("div")
-            resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
+            resultItem.className = "floating-search-result-item"
+            resultItem.style.cursor = "pointer"
             resultItem.innerHTML = `
-              <div class="floating-search-result-main">
-                <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
-                <div class="floating-search-result-timezone">${offsetDisplay}</div>
+              <div class="floating-search-result-main" style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                <div class="floating-search-result-name">📍 ${location.displayName}</div>
+                <div style="color: #999; font-size: 1.2em; margin-left: 8px;">›</div>
               </div>
-              ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
             `
 
-            if (!isAlreadySelected) {
-              resultItem.addEventListener("click", () => {
-                selectedCities.set(cityKey, city)
-                saveSelectedCities()
-                rebuildTimelines()
-                floatingSearchInput.value = ""
-                floatingSearchResults.innerHTML = ""
-                floatingSearchResults.style.display = "none"
-              })
-            }
+            resultItem.addEventListener("click", (e) => {
+              e.stopPropagation()
+              // Show nearest cities to this location
+              showNearestCities(location.lat, location.lng, location.displayName)
+            })
 
             floatingSearchResults.appendChild(resultItem)
           })
@@ -394,7 +498,13 @@ export default function RemoteTimezonePage() {
           return
         }
 
-        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No cities found</div>'
+        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">No locations found</div>'
+        floatingSearchResults.style.display = "block"
+        return
+      }
+
+      if (filteredCities.length === 0) {
+        floatingSearchResults.innerHTML = '<div class="floating-search-no-results">Type at least 3 characters to search</div>'
         floatingSearchResults.style.display = "block"
         return
       }
@@ -421,7 +531,8 @@ export default function RemoteTimezonePage() {
         `
 
         if (!isAlreadySelected) {
-          resultItem.addEventListener("click", () => {
+          resultItem.addEventListener("click", (e) => {
+            e.stopPropagation()
             selectedCities.set(cityKey, city)
             saveSelectedCities()
             rebuildTimelines()
