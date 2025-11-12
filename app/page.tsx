@@ -144,7 +144,7 @@ export default function RemoteTimezonePage() {
       // If not in hardcoded list, try geocoding API
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=5&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=10&addressdetails=1`,
           {
             headers: {
               'User-Agent': 'RemoteTimezoneApp/1.0'
@@ -159,7 +159,33 @@ export default function RemoteTimezonePage() {
         const data = await response.json()
 
         if (data && data.length > 0) {
-          return data.map((item: any) => ({
+          // Filter to only include geographic places (cities, states, countries, etc.)
+          // Exclude hotels, restaurants, shops, and other businesses
+          const validTypes = ['city', 'town', 'village', 'hamlet', 'suburb', 'state', 'province', 'country', 'region', 'county', 'municipality', 'administrative']
+
+          const filteredData = data.filter((item: any) => {
+            const type = item.type?.toLowerCase() || ''
+            const itemClass = item.class?.toLowerCase() || ''
+
+            // Include if type matches valid geographic types
+            if (validTypes.some(validType => type.includes(validType))) {
+              return true
+            }
+
+            // Include if class is boundary or place (administrative divisions)
+            if (itemClass === 'boundary' || itemClass === 'place') {
+              return true
+            }
+
+            // Exclude tourism, amenity, shop, etc.
+            if (['tourism', 'amenity', 'shop', 'leisure', 'building'].includes(itemClass)) {
+              return false
+            }
+
+            return false
+          })
+
+          return filteredData.slice(0, 5).map((item: any) => ({
             lat: parseFloat(item.lat),
             lng: parseFloat(item.lon),
             displayName: item.display_name
@@ -365,7 +391,8 @@ export default function RemoteTimezonePage() {
         `
 
         if (!isAlreadySelected) {
-          resultItem.addEventListener("click", () => {
+          resultItem.addEventListener("click", (e) => {
+            e.stopPropagation()
             selectedCities.set(cityKey, city)
             saveSelectedCities()
             rebuildTimelines()
@@ -431,7 +458,8 @@ export default function RemoteTimezonePage() {
               </div>
             `
 
-            resultItem.addEventListener("click", () => {
+            resultItem.addEventListener("click", (e) => {
+              e.stopPropagation()
               // Show nearest cities to this location
               showNearestCities(location.lat, location.lng, location.displayName)
             })
@@ -476,7 +504,8 @@ export default function RemoteTimezonePage() {
         `
 
         if (!isAlreadySelected) {
-          resultItem.addEventListener("click", () => {
+          resultItem.addEventListener("click", (e) => {
+            e.stopPropagation()
             selectedCities.set(cityKey, city)
             saveSelectedCities()
             rebuildTimelines()
