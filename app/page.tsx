@@ -367,45 +367,56 @@ export default function RemoteTimezonePage() {
     function showNearestCities(lat: number, lng: number, locationName: string) {
       if (!floatingSearchResults) return
 
-      const nearestCities = findNearestCities(lat, lng, 5)
+      // Show loading indicator while calculating
+      floatingSearchResults.innerHTML = `
+        <div class="floating-search-no-results" style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #666; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          Finding nearest cities...
+        </div>
+      `
 
-      floatingSearchResults.innerHTML = `<div class="floating-search-no-results">Showing nearest cities to ${locationName}:</div>`
+      // Use setTimeout to ensure loading state is visible
+      setTimeout(() => {
+        const nearestCities = findNearestCities(lat, lng, 5)
 
-      nearestCities.forEach((cityWithDistance) => {
-        const city = cityWithDistance
-        const offset = getTimezoneOffset(city.timezone)
-        const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
-        const cityKey = `${city.name}-${city.timezone}`
-        const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
-        const flag = countryFlags[city.country] || "🏳️"
-        const distanceKm = Math.round(cityWithDistance.distance)
+        floatingSearchResults.innerHTML = `<div class="floating-search-no-results">Showing nearest cities to ${locationName}:</div>`
 
-        const resultItem = document.createElement("div")
-        resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
-        resultItem.innerHTML = `
-          <div class="floating-search-result-main">
-            <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
-            <div class="floating-search-result-timezone">${offsetDisplay}</div>
-          </div>
-          ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
-        `
+        nearestCities.forEach((cityWithDistance) => {
+          const city = cityWithDistance
+          const offset = getTimezoneOffset(city.timezone)
+          const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+          const cityKey = `${city.name}-${city.timezone}`
+          const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
+          const flag = countryFlags[city.country] || "🏳️"
+          const distanceKm = Math.round(cityWithDistance.distance)
 
-        if (!isAlreadySelected) {
-          resultItem.addEventListener("click", (e) => {
-            e.stopPropagation()
-            selectedCities.set(cityKey, city)
-            saveSelectedCities()
-            rebuildTimelines()
-            floatingSearchInput.value = ""
-            floatingSearchResults.innerHTML = ""
-            floatingSearchResults.style.display = "none"
-          })
-        }
+          const resultItem = document.createElement("div")
+          resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
+          resultItem.innerHTML = `
+            <div class="floating-search-result-main">
+              <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
+              <div class="floating-search-result-timezone">${offsetDisplay}</div>
+            </div>
+            ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
+          `
 
-        floatingSearchResults.appendChild(resultItem)
-      })
+          if (!isAlreadySelected) {
+            resultItem.addEventListener("click", (e) => {
+              e.stopPropagation()
+              selectedCities.set(cityKey, city)
+              saveSelectedCities()
+              rebuildTimelines()
+              floatingSearchInput.value = ""
+              floatingSearchResults.innerHTML = ""
+              floatingSearchResults.style.display = "none"
+            })
+          }
 
-      floatingSearchResults.style.display = "block"
+          floatingSearchResults.appendChild(resultItem)
+        })
+
+        floatingSearchResults.style.display = "block"
+      }, 100)
     }
 
     async function renderFloatingSearchResults(query: string) {
@@ -453,8 +464,9 @@ export default function RemoteTimezonePage() {
             resultItem.className = "floating-search-result-item"
             resultItem.style.cursor = "pointer"
             resultItem.innerHTML = `
-              <div class="floating-search-result-main">
+              <div class="floating-search-result-main" style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
                 <div class="floating-search-result-name">📍 ${location.displayName}</div>
+                <div style="color: #999; font-size: 1.2em; margin-left: 8px;">›</div>
               </div>
             `
 
