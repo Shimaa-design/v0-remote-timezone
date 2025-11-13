@@ -1133,7 +1133,11 @@ export default function RemoteTimezonePage() {
       dragClone.style.zIndex = '10000'
       document.body.appendChild(dragClone)
 
-      // Hide original
+      // Collapse original (hide it completely)
+      draggedContainer.style.height = '0'
+      draggedContainer.style.overflow = 'hidden'
+      draggedContainer.style.marginBottom = '0'
+      draggedContainer.style.padding = '0'
       draggedContainer.style.opacity = '0'
       draggedContainer.style.pointerEvents = 'none'
 
@@ -1229,6 +1233,10 @@ export default function RemoteTimezonePage() {
         dragPlaceholder = null
       }
       if (draggedContainer) {
+        draggedContainer.style.height = ''
+        draggedContainer.style.overflow = ''
+        draggedContainer.style.marginBottom = ''
+        draggedContainer.style.padding = ''
         draggedContainer.style.opacity = ''
         draggedContainer.style.pointerEvents = ''
       }
