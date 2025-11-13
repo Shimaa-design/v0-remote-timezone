@@ -1099,8 +1099,16 @@ export default function RemoteTimezonePage() {
     function handleCityNameMouseDown(e: MouseEvent) {
       const target = e.target as HTMLElement
 
-      // Only allow drag from city-name element
-      if (!target.classList.contains('city-name')) {
+      // Allow drag from city-name, drag-icon, city-timezone, or city-header-right
+      const isDraggableElement =
+        target.classList.contains('city-name') ||
+        target.classList.contains('drag-icon') ||
+        target.closest('.drag-icon') ||
+        target.classList.contains('city-timezone') ||
+        target.classList.contains('city-header-right') ||
+        target.closest('.city-header-right')
+
+      if (!isDraggableElement) {
         return
       }
 
@@ -1274,11 +1282,16 @@ export default function RemoteTimezonePage() {
         if (!isLocal) {
           cityDial.dataset.cityKey = `${city.name}-${city.timezone}`
 
-          // Attach mouse handlers for custom dragging
+          // Attach mouse handlers for custom dragging on multiple elements
           const cityName = cityDial.querySelector('.city-name')
-          if (cityName) {
-            cityName.addEventListener('mousedown', handleCityNameMouseDown)
-          }
+          const dragIcon = cityDial.querySelector('.drag-icon')
+          const cityTimezone = cityDial.querySelector('.city-timezone')
+          const cityHeaderRight = cityDial.querySelector('.city-header-right')
+
+          if (cityName) cityName.addEventListener('mousedown', handleCityNameMouseDown)
+          if (dragIcon) dragIcon.addEventListener('mousedown', handleCityNameMouseDown)
+          if (cityTimezone) cityTimezone.addEventListener('mousedown', handleCityNameMouseDown)
+          if (cityHeaderRight) cityHeaderRight.addEventListener('mousedown', handleCityNameMouseDown)
         }
       })
 

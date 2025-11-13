@@ -336,7 +336,8 @@ body {
   color: #667eea;
   flex-shrink: 0;
   transform: translateX(-8px);
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: grab;
 }
 
 .dark .drag-icon {
@@ -667,6 +668,11 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: grab;
+}
+
+.city-dial-container.local .city-header-right {
+  cursor: default;
 }
 
 .city-name {
@@ -684,10 +690,15 @@ h1 {
   font-size: 0.9rem;
   color: #999;
   display: block;
+  cursor: grab;
 }
 
 .dark .city-timezone {
   color: #666;
+}
+
+.city-dial-container.local .city-timezone {
+  cursor: default;
 }
 
 .city-current-time {
