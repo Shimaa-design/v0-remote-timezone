@@ -865,7 +865,7 @@ h1 {
 /* Floating Search Bar */
 .floating-search-container {
   position: fixed;
-  bottom: 50px; /* Increased bottom spacing from 30px to 50px */
+  bottom: 30px; 
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
