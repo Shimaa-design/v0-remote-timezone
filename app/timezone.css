@@ -16,7 +16,6 @@ body {
 }
 
 .container {
-  /* Reduced max-width from 1000px to 800px */
   max-width: 800px;
   margin: 0 auto;
   transition: transform 0.3s ease, margin-right 0.3s ease;
@@ -1095,12 +1094,12 @@ h1 {
   }
 
   .floating-search-container {
-    bottom: 35px; /* Increased bottom spacing from 20px to 35px on mobile */
+    bottom: 24px; 
     width: 95%;
   }
 
   .floating-search-input {
-    padding: 15px 20px;
+    
     font-size: 1rem;
   }
 
