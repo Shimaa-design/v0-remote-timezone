@@ -166,9 +166,10 @@ export default function RemoteTimezonePage() {
             const itemClass = item.class?.toLowerCase() || ''
             const displayName = item.display_name?.toLowerCase() || ''
 
-            // EXCLUDE: Any result with postal codes (5-6 digit numbers or patterns like 94614, 21519)
-            // This removes overly specific addresses
-            if (/\b\d{5,6}\b/.test(displayName)) {
+            // EXCLUDE: Any result with postal codes (all formats)
+            // Catches numeric (94614, 21519) and alphanumeric (G83 0PB, M1 1AA, etc.)
+            const postalCodePattern = /\b\d{5,6}\b|\b[a-z]\d{1,2}\s*\d[a-z]{2}\b|\b[a-z]{1,2}\d{1,2}[a-z]?\s*\d[a-z]{2}\b/i
+            if (postalCodePattern.test(displayName)) {
               return false
             }
 
