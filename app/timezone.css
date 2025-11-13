@@ -361,6 +361,11 @@ h1 {
   color: #667eea;
 }
 
+.dark .icon-button {
+  background: #2a2a2a;
+  color: #8b9fea;
+}
+
 .icon-button:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
@@ -860,7 +865,7 @@ h1 {
 /* Floating Search Bar */
 .floating-search-container {
   position: fixed;
-  bottom: 30px;
+  bottom: 50px; /* Increased bottom spacing from 30px to 50px */
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
@@ -1090,7 +1095,7 @@ h1 {
   }
 
   .floating-search-container {
-    bottom: 20px;
+    bottom: 35px; /* Increased bottom spacing from 20px to 35px on mobile */
     width: 95%;
   }
 

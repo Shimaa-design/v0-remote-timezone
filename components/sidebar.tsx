@@ -21,7 +21,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <div className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <h2>Settings</h2>
+          <h2>Remote Timezone</h2>
           <button
             className="sidebar-close-button"
             onClick={onClose}

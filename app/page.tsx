@@ -1094,7 +1094,7 @@ export default function RemoteTimezonePage() {
             type="text"
             id="floatingSearch"
             className="floating-search-input"
-            placeholder="Quick add city (search by name, country, or timezone)..."
+            placeholder="Add city (search by name, country, or timezone)..."
           />
           <div className="floating-search-results" id="floatingSearchResults"></div>
         </div>
