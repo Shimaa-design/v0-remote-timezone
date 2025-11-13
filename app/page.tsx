@@ -776,7 +776,7 @@ export default function RemoteTimezonePage() {
               <div class="city-header">
                 <div>
                   <div>
-                    ${homeIcon}<span class="city-name" draggable="true" style="cursor: grab;">${city.name}</span>
+                    ${homeIcon}<span class="city-name">${city.name}</span>
                   </div>
                   ${timezoneLabel}
                 </div>
@@ -1084,117 +1084,156 @@ export default function RemoteTimezonePage() {
       })
     }
 
-    // Drag and drop handlers for city reordering
-    let draggedElement: HTMLElement | null = null
+    // Custom drag and drop for city reordering
+    let isDraggingCity = false
     let draggedContainer: HTMLElement | null = null
+    let dragClone: HTMLElement | null = null
+    let dragStartY = 0
+    let initialMouseY = 0
+    let dragPlaceholder: HTMLElement | null = null
 
-    function handleDragStart(e: DragEvent) {
+    function handleCityNameMouseDown(e: MouseEvent) {
       const target = e.target as HTMLElement
 
       // Only allow drag from city-name element
       if (!target.classList.contains('city-name')) {
-        e.preventDefault()
         return
       }
 
       // Find the parent city-dial-container
       draggedContainer = target.closest('.city-dial-container') as HTMLElement
-      if (!draggedContainer) {
-        e.preventDefault()
+      if (!draggedContainer || draggedContainer.classList.contains('local')) {
         return
       }
 
-      draggedElement = target
-      draggedContainer.classList.add('dragging')
+      isDraggingCity = true
+      initialMouseY = e.clientY
+      const rect = draggedContainer.getBoundingClientRect()
+      dragStartY = rect.top
 
-      if (e.dataTransfer) {
-        e.dataTransfer.effectAllowed = 'move'
-        e.dataTransfer.setData('text/plain', draggedContainer.dataset.cityKey || '')
-        // Create a custom drag image showing the whole card
-        const dragImage = draggedContainer.cloneNode(true) as HTMLElement
-        dragImage.style.opacity = '0.8'
-        document.body.appendChild(dragImage)
-        e.dataTransfer.setDragImage(dragImage, 0, 0)
-        setTimeout(() => document.body.removeChild(dragImage), 0)
-      }
-    }
+      // Create placeholder
+      dragPlaceholder = document.createElement('div')
+      dragPlaceholder.className = 'drag-placeholder'
+      dragPlaceholder.style.height = `${rect.height}px`
+      dragPlaceholder.style.marginBottom = '16px'
+      draggedContainer.parentNode?.insertBefore(dragPlaceholder, draggedContainer)
 
-    function handleDragOver(e: DragEvent) {
+      // Create visual clone
+      dragClone = draggedContainer.cloneNode(true) as HTMLElement
+      dragClone.classList.add('drag-clone')
+      dragClone.style.position = 'fixed'
+      dragClone.style.left = `${rect.left}px`
+      dragClone.style.top = `${rect.top}px`
+      dragClone.style.width = `${rect.width}px`
+      dragClone.style.pointerEvents = 'none'
+      dragClone.style.zIndex = '10000'
+      document.body.appendChild(dragClone)
+
+      // Hide original
+      draggedContainer.style.opacity = '0'
+      draggedContainer.style.pointerEvents = 'none'
+
       e.preventDefault()
-      if (e.dataTransfer) {
-        e.dataTransfer.dropEffect = 'move'
-      }
-      return false
     }
 
-    function handleDragEnter(e: DragEvent) {
-      const target = e.currentTarget as HTMLElement
-      // Don't add drag-over class to the dragged container itself
-      if (target !== draggedContainer && !target.classList.contains('local')) {
-        target.classList.add('drag-over')
+    function handleCityNameMouseMove(e: MouseEvent) {
+      if (!isDraggingCity || !dragClone || !draggedContainer || !dragPlaceholder) {
+        return
+      }
+
+      const deltaY = e.clientY - initialMouseY
+      const newTop = dragStartY + deltaY
+
+      // Move the clone
+      dragClone.style.top = `${newTop}px`
+
+      // Find where to insert based on mouse position
+      const timelineSection = document.getElementById('timelineSection')
+      if (!timelineSection) return
+
+      const allContainers = Array.from(timelineSection.querySelectorAll('.city-dial-container:not(.local)')) as HTMLElement[]
+      let insertBeforeElement: HTMLElement | null = null
+
+      for (const container of allContainers) {
+        if (container === draggedContainer) continue
+
+        const rect = container.getBoundingClientRect()
+        const containerMiddle = rect.top + rect.height / 2
+
+        if (e.clientY < containerMiddle) {
+          insertBeforeElement = container
+          break
+        }
+      }
+
+      // Move placeholder
+      if (insertBeforeElement) {
+        insertBeforeElement.parentNode?.insertBefore(dragPlaceholder, insertBeforeElement)
+      } else {
+        // Insert at end
+        const lastNonLocal = allContainers[allContainers.length - 1]
+        if (lastNonLocal) {
+          lastNonLocal.parentNode?.insertBefore(dragPlaceholder, lastNonLocal.nextSibling)
+        }
       }
     }
 
-    function handleDragLeave(e: DragEvent) {
-      const target = e.currentTarget as HTMLElement
-      target.classList.remove('drag-over')
-    }
-
-    function handleDrop(e: DragEvent) {
-      e.stopPropagation()
-      e.preventDefault()
-
-      const dropTarget = e.currentTarget as HTMLElement
-      dropTarget.classList.remove('drag-over')
-
-      if (!draggedContainer || draggedContainer === dropTarget) {
-        return false
+    function handleCityNameMouseUp(e: MouseEvent) {
+      if (!isDraggingCity || !draggedContainer || !dragPlaceholder) {
+        return
       }
 
-      // Don't allow dropping on local city
-      if (dropTarget.classList.contains('local')) {
-        return false
+      // Calculate new order based on placeholder position
+      const timelineSection = document.getElementById('timelineSection')
+      if (timelineSection) {
+        const allContainers = Array.from(timelineSection.querySelectorAll('.city-dial-container:not(.local)')) as HTMLElement[]
+        const placeholderIndex = Array.from(timelineSection.children).indexOf(dragPlaceholder)
+
+        // Find the position in the non-local containers
+        let targetIndex = 0
+        for (let i = 0; i < timelineSection.children.length; i++) {
+          if (timelineSection.children[i] === dragPlaceholder) {
+            break
+          }
+          if (!timelineSection.children[i].classList.contains('local')) {
+            targetIndex++
+          }
+        }
+
+        const draggedCityKey = draggedContainer.dataset.cityKey
+        if (draggedCityKey) {
+          // Reorder in Map
+          const citiesArray = Array.from(selectedCities.entries())
+          const draggedIndex = citiesArray.findIndex(([key]) => key === draggedCityKey)
+
+          if (draggedIndex !== -1) {
+            const [draggedItem] = citiesArray.splice(draggedIndex, 1)
+            citiesArray.splice(targetIndex, 0, draggedItem)
+            selectedCities = new Map(citiesArray)
+            saveSelectedCities()
+          }
+        }
       }
 
-      const draggedCityKey = draggedContainer.dataset.cityKey
-      const dropTargetCityKey = dropTarget.dataset.cityKey
-
-      if (!draggedCityKey || !dropTargetCityKey) {
-        return false
+      // Cleanup
+      if (dragClone) {
+        dragClone.remove()
+        dragClone = null
       }
-
-      // Reorder cities in the Map
-      const citiesArray = Array.from(selectedCities.entries())
-      const draggedIndex = citiesArray.findIndex(([key]) => key === draggedCityKey)
-      const dropIndex = citiesArray.findIndex(([key]) => key === dropTargetCityKey)
-
-      if (draggedIndex !== -1 && dropIndex !== -1) {
-        // Remove dragged item
-        const [draggedItem] = citiesArray.splice(draggedIndex, 1)
-        // Insert at new position
-        citiesArray.splice(dropIndex, 0, draggedItem)
-
-        // Rebuild the Map with new order
-        selectedCities = new Map(citiesArray)
-        saveSelectedCities()
-        rebuildTimelines()
+      if (dragPlaceholder) {
+        dragPlaceholder.remove()
+        dragPlaceholder = null
       }
-
-      return false
-    }
-
-    function handleDragEnd(e: DragEvent) {
       if (draggedContainer) {
-        draggedContainer.classList.remove('dragging')
+        draggedContainer.style.opacity = ''
+        draggedContainer.style.pointerEvents = ''
       }
 
-      // Clean up all drag-over classes
-      document.querySelectorAll('.drag-over').forEach(el => {
-        el.classList.remove('drag-over')
-      })
-
-      draggedElement = null
+      isDraggingCity = false
       draggedContainer = null
+
+      // Rebuild to reflect new order
+      rebuildTimelines()
     }
 
     function rebuildTimelines() {
@@ -1223,13 +1262,11 @@ export default function RemoteTimezonePage() {
         if (!isLocal) {
           cityDial.dataset.cityKey = `${city.name}-${city.timezone}`
 
-          // Attach handlers to container, but dragging is only initiated from city-name
-          cityDial.addEventListener('dragstart', handleDragStart)
-          cityDial.addEventListener('dragover', handleDragOver)
-          cityDial.addEventListener('drop', handleDrop)
-          cityDial.addEventListener('dragend', handleDragEnd)
-          cityDial.addEventListener('dragenter', handleDragEnter)
-          cityDial.addEventListener('dragleave', handleDragLeave)
+          // Attach mouse handlers for custom dragging
+          const cityName = cityDial.querySelector('.city-name')
+          if (cityName) {
+            cityName.addEventListener('mousedown', handleCityNameMouseDown)
+          }
         }
       })
 
@@ -1248,6 +1285,10 @@ export default function RemoteTimezonePage() {
 
     window.addEventListener("resize", updateDialPositions)
 
+    // Add global mouse event listeners for city reordering
+    document.addEventListener("mousemove", handleCityNameMouseMove)
+    document.addEventListener("mouseup", handleCityNameMouseUp)
+
     rebuildTimelines()
 
     return () => {
@@ -1259,6 +1300,8 @@ export default function RemoteTimezonePage() {
       document.removeEventListener("touchmove", drag)
       document.removeEventListener("mouseup", stopDrag)
       document.removeEventListener("touchend", stopDrag)
+      document.removeEventListener("mousemove", handleCityNameMouseMove)
+      document.removeEventListener("mouseup", handleCityNameMouseUp)
     }
   }, [])
 
