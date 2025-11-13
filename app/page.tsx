@@ -144,7 +144,7 @@ export default function RemoteTimezonePage() {
       // If not in hardcoded list, try geocoding API
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=20&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=50&addressdetails=1`,
           {
             headers: {
               'User-Agent': 'RemoteTimezoneApp/1.0'
@@ -159,48 +159,109 @@ export default function RemoteTimezonePage() {
         const data = await response.json()
 
         if (data && data.length > 0) {
-          // Filter to only include geographic places (cities, states, countries, etc.)
-          // Exclude hotels, restaurants, shops, and other businesses
-          const validTypes = ['city', 'town', 'village', 'hamlet', 'suburb', 'state', 'province', 'country', 'region', 'county', 'municipality', 'administrative']
-
+          // Use a permissive approach: exclude bad stuff rather than whitelist
+          // This allows cities/towns with various OSM classifications to appear
           const filteredData = data.filter((item: any) => {
             const type = item.type?.toLowerCase() || ''
             const itemClass = item.class?.toLowerCase() || ''
             const displayName = item.display_name?.toLowerCase() || ''
 
-            // Exclude very specific Greek/foreign small locations with many commas (too specific)
+            // EXCLUDE: Any result with postal codes (all formats)
+            // Catches numeric (94614, 21519) and alphanumeric (G83 0PB, M1 1AA, etc.)
+            const postalCodePattern = /\b\d{5,6}\b|\b[a-z]\d{1,2}\s*\d[a-z]{2}\b|\b[a-z]{1,2}\d{1,2}[a-z]?\s*\d[a-z]{2}\b/i
+            if (postalCodePattern.test(displayName)) {
+              return false
+            }
+
+            // EXCLUDE: Airports and specific facilities
+            const facilityKeywords = ['airport', 'international airport', 'parkway', 'boulevard', 'avenue', 'street', 'road']
+            if (facilityKeywords.some(keyword => displayName.includes(keyword))) {
+              return false
+            }
+
+            // Exclude very specific locations with too many commas (overly detailed addresses)
             const commaCount = (displayName.match(/,/g) || []).length
-            if (commaCount > 6) {
+            if (commaCount > 5) {
               return false
             }
 
-            // Include if type matches valid geographic types
-            if (validTypes.some(validType => type.includes(validType))) {
-              return true
-            }
-
-            // Include if class is boundary or place (administrative divisions)
-            if (itemClass === 'boundary' || itemClass === 'place') {
-              return true
-            }
-
-            // Exclude tourism, amenity, shop, etc.
-            if (['tourism', 'amenity', 'shop', 'leisure', 'building'].includes(itemClass)) {
+            // KEY FILTER: Exclude administrative subdivisions by checking display name
+            // This catches "Ward 105", "Metropolitan Municipality", etc.
+            const excludedKeywords = [
+              'ward ', ' ward,', ' ward ',
+              'municipality,', 'metropolitan municipality',
+              'administrative',
+              'township,',
+              'subdivision'
+            ]
+            if (excludedKeywords.some(keyword => displayName.includes(keyword))) {
               return false
             }
 
-            return false
+            // Exclude non-geographic places (businesses, buildings, amenities)
+            const excludedClasses = ['tourism', 'amenity', 'shop', 'leisure', 'building', 'highway', 'aeroway']
+            if (excludedClasses.includes(itemClass)) {
+              return false
+            }
+
+            // Exclude very small locations (hamlets, isolated dwellings, farms)
+            const excludedSmallTypes = ['hamlet', 'isolated_dwelling', 'farm', 'locality']
+            if (excludedSmallTypes.includes(type)) {
+              return false
+            }
+
+            // Include place and boundary classes (these contain cities, states, countries)
+            if (itemClass === 'place' || itemClass === 'boundary') {
+              return true
+            }
+
+            // If we can't determine the class, be permissive and allow it
+            return true
           })
 
-          // Sort by importance (OSM provides importance score, higher is better)
-          // Major cities like Alexandria, Egypt will have higher importance
+          // Smart sorting: prioritize results where city name starts with search query
+          // This ensures "alex" shows "Alexandria" before "Alexanderplatz"
           const sortedData = filteredData.sort((a: any, b: any) => {
+            // Get the first part of display name (the city/location name)
+            const nameA = (a.display_name?.split(',')[0] || '').toLowerCase().trim()
+            const nameB = (b.display_name?.split(',')[0] || '').toLowerCase().trim()
+            const queryLower = searchQuery.toLowerCase().trim()
+
+            // Check if names start with the search query
+            const aStartsWith = nameA.startsWith(queryLower)
+            const bStartsWith = nameB.startsWith(queryLower)
+
+            // Prioritize results that start with query
+            if (aStartsWith && !bStartsWith) return -1
+            if (!aStartsWith && bStartsWith) return 1
+
+            // If both start with query (or neither do), sort by importance
             const importanceA = parseFloat(a.importance || 0)
             const importanceB = parseFloat(b.importance || 0)
             return importanceB - importanceA
           })
 
-          return sortedData.slice(0, 5).map((item: any) => ({
+          // Deduplicate similar results (e.g., "Alexandria, 21519, Egypt" vs "Alexandria, Egypt")
+          // Remove postal codes and compare normalized names
+          const deduplicatedData: any[] = []
+          const seenLocations = new Set<string>()
+
+          for (const item of sortedData) {
+            // Normalize by removing postal codes (typically 3-6 digit numbers) and extra spaces
+            const normalized = item.display_name
+              .replace(/,\s*\d{3,6}\s*,/g, ',') // Remove postal codes between commas
+              .replace(/,\s+/g, ', ') // Normalize spacing
+              .toLowerCase()
+              .trim()
+
+            if (!seenLocations.has(normalized)) {
+              seenLocations.add(normalized)
+              deduplicatedData.push(item)
+            }
+          }
+
+          // Return top 8 unique results for better autocomplete experience
+          return deduplicatedData.slice(0, 8).map((item: any) => ({
             lat: parseFloat(item.lat),
             lng: parseFloat(item.lon),
             displayName: item.display_name
