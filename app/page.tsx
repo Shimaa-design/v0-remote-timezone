@@ -144,7 +144,7 @@ export default function RemoteTimezonePage() {
       // If not in hardcoded list, try geocoding API
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=20&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=50&addressdetails=1`,
           {
             headers: {
               'User-Agent': 'RemoteTimezoneApp/1.0'
@@ -159,50 +159,51 @@ export default function RemoteTimezonePage() {
         const data = await response.json()
 
         if (data && data.length > 0) {
-          // Filter to show cities and major locations, but exclude administrative subdivisions
-          // The key is filtering by keywords in display name rather than being too restrictive on types
-          const validTypes = ['city', 'town', 'state', 'province', 'country', 'region']
-          const excludedTypes = ['village', 'hamlet', 'suburb', 'county', 'municipality', 'administrative', 'ward']
-
+          // Use a permissive approach: exclude bad stuff rather than whitelist
+          // This allows cities/towns with various OSM classifications to appear
           const filteredData = data.filter((item: any) => {
             const type = item.type?.toLowerCase() || ''
             const itemClass = item.class?.toLowerCase() || ''
             const displayName = item.display_name?.toLowerCase() || ''
 
-            // Exclude very specific locations with many commas (too specific)
+            // Exclude very specific locations with too many commas (overly detailed addresses)
             const commaCount = (displayName.match(/,/g) || []).length
             if (commaCount > 6) {
               return false
             }
 
-            // Exclude items with specific administrative keywords in display name
-            // This is the key filter to exclude results like "Ward 105" or "Metropolitan Municipality"
-            const excludedKeywords = ['ward ', ' ward', 'municipality', 'metropolitan municipality', 'district', 'township', 'subdivision']
+            // KEY FILTER: Exclude administrative subdivisions by checking display name
+            // This catches "Ward 105", "Metropolitan Municipality", etc.
+            const excludedKeywords = [
+              'ward ', ' ward,', ' ward ',
+              'municipality,', 'metropolitan municipality',
+              'administrative',
+              'township,',
+              'subdivision'
+            ]
             if (excludedKeywords.some(keyword => displayName.includes(keyword))) {
               return false
             }
 
-            // Explicitly exclude unwanted types (but keep 'town' since many cities are classified as towns)
-            if (excludedTypes.some(excluded => type.includes(excluded))) {
+            // Exclude non-geographic places (businesses, buildings, amenities)
+            const excludedClasses = ['tourism', 'amenity', 'shop', 'leisure', 'building', 'highway']
+            if (excludedClasses.includes(itemClass)) {
               return false
             }
 
-            // Include if type matches valid geographic types
-            if (validTypes.some(validType => type.includes(validType))) {
-              return true
-            }
-
-            // Include place class but exclude boundary class (which often contains administrative subdivisions)
-            if (itemClass === 'place') {
-              return true
-            }
-
-            // Exclude tourism, amenity, shop, etc.
-            if (['tourism', 'amenity', 'shop', 'leisure', 'building', 'boundary'].includes(itemClass)) {
+            // Exclude very small locations (hamlets, isolated dwellings, farms)
+            const excludedSmallTypes = ['hamlet', 'isolated_dwelling', 'farm', 'locality']
+            if (excludedSmallTypes.includes(type)) {
               return false
             }
 
-            return false
+            // Include place and boundary classes (these contain cities, states, countries)
+            if (itemClass === 'place' || itemClass === 'boundary') {
+              return true
+            }
+
+            // If we can't determine the class, be permissive and allow it
+            return true
           })
 
           // Sort by importance (OSM provides importance score, higher is better)
