@@ -159,18 +159,30 @@ export default function RemoteTimezonePage() {
         const data = await response.json()
 
         if (data && data.length > 0) {
-          // Filter to only include geographic places (cities, states, countries, etc.)
-          // Exclude hotels, restaurants, shops, and other businesses
-          const validTypes = ['city', 'town', 'village', 'hamlet', 'suburb', 'state', 'province', 'country', 'region', 'county', 'municipality', 'administrative']
+          // Filter to only include major geographic places (cities, states, countries, etc.)
+          // Exclude towns, villages, administrative subdivisions, and businesses
+          const validTypes = ['city', 'state', 'province', 'country', 'region']
+          const excludedTypes = ['town', 'village', 'hamlet', 'suburb', 'county', 'municipality', 'administrative', 'ward']
 
           const filteredData = data.filter((item: any) => {
             const type = item.type?.toLowerCase() || ''
             const itemClass = item.class?.toLowerCase() || ''
             const displayName = item.display_name?.toLowerCase() || ''
 
-            // Exclude very specific Greek/foreign small locations with many commas (too specific)
+            // Exclude very specific locations with many commas (too specific)
             const commaCount = (displayName.match(/,/g) || []).length
             if (commaCount > 6) {
+              return false
+            }
+
+            // Exclude items with specific administrative keywords in display name
+            const excludedKeywords = ['ward ', 'municipality', 'metropolitan municipality', 'district', 'township']
+            if (excludedKeywords.some(keyword => displayName.includes(keyword))) {
+              return false
+            }
+
+            // Explicitly exclude unwanted types
+            if (excludedTypes.some(excluded => type.includes(excluded))) {
               return false
             }
 
@@ -179,13 +191,13 @@ export default function RemoteTimezonePage() {
               return true
             }
 
-            // Include if class is boundary or place (administrative divisions)
-            if (itemClass === 'boundary' || itemClass === 'place') {
+            // Include place class but exclude boundary class (which often contains administrative subdivisions)
+            if (itemClass === 'place') {
               return true
             }
 
             // Exclude tourism, amenity, shop, etc.
-            if (['tourism', 'amenity', 'shop', 'leisure', 'building'].includes(itemClass)) {
+            if (['tourism', 'amenity', 'shop', 'leisure', 'building', 'boundary'].includes(itemClass)) {
               return false
             }
 
