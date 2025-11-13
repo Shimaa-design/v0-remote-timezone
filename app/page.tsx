@@ -159,10 +159,10 @@ export default function RemoteTimezonePage() {
         const data = await response.json()
 
         if (data && data.length > 0) {
-          // Filter to only include major geographic places (cities, states, countries, etc.)
-          // Exclude towns, villages, administrative subdivisions, and businesses
-          const validTypes = ['city', 'state', 'province', 'country', 'region']
-          const excludedTypes = ['town', 'village', 'hamlet', 'suburb', 'county', 'municipality', 'administrative', 'ward']
+          // Filter to show cities and major locations, but exclude administrative subdivisions
+          // The key is filtering by keywords in display name rather than being too restrictive on types
+          const validTypes = ['city', 'town', 'state', 'province', 'country', 'region']
+          const excludedTypes = ['village', 'hamlet', 'suburb', 'county', 'municipality', 'administrative', 'ward']
 
           const filteredData = data.filter((item: any) => {
             const type = item.type?.toLowerCase() || ''
@@ -176,12 +176,13 @@ export default function RemoteTimezonePage() {
             }
 
             // Exclude items with specific administrative keywords in display name
-            const excludedKeywords = ['ward ', 'municipality', 'metropolitan municipality', 'district', 'township']
+            // This is the key filter to exclude results like "Ward 105" or "Metropolitan Municipality"
+            const excludedKeywords = ['ward ', ' ward', 'municipality', 'metropolitan municipality', 'district', 'township', 'subdivision']
             if (excludedKeywords.some(keyword => displayName.includes(keyword))) {
               return false
             }
 
-            // Explicitly exclude unwanted types
+            // Explicitly exclude unwanted types (but keep 'town' since many cities are classified as towns)
             if (excludedTypes.some(excluded => type.includes(excluded))) {
               return false
             }
@@ -212,7 +213,8 @@ export default function RemoteTimezonePage() {
             return importanceB - importanceA
           })
 
-          return sortedData.slice(0, 5).map((item: any) => ({
+          // Return top 8 results for better autocomplete experience
+          return sortedData.slice(0, 8).map((item: any) => ({
             lat: parseFloat(item.lat),
             lng: parseFloat(item.lon),
             displayName: item.display_name
