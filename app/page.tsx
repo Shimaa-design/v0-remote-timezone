@@ -214,8 +214,27 @@ export default function RemoteTimezonePage() {
             return importanceB - importanceA
           })
 
-          // Return top 8 results for better autocomplete experience
-          return sortedData.slice(0, 8).map((item: any) => ({
+          // Deduplicate similar results (e.g., "Alexandria, 21519, Egypt" vs "Alexandria, Egypt")
+          // Remove postal codes and compare normalized names
+          const deduplicatedData: any[] = []
+          const seenLocations = new Set<string>()
+
+          for (const item of sortedData) {
+            // Normalize by removing postal codes (typically 3-6 digit numbers) and extra spaces
+            const normalized = item.display_name
+              .replace(/,\s*\d{3,6}\s*,/g, ',') // Remove postal codes between commas
+              .replace(/,\s+/g, ', ') // Normalize spacing
+              .toLowerCase()
+              .trim()
+
+            if (!seenLocations.has(normalized)) {
+              seenLocations.add(normalized)
+              deduplicatedData.push(item)
+            }
+          }
+
+          // Return top 8 unique results for better autocomplete experience
+          return deduplicatedData.slice(0, 8).map((item: any) => ({
             lat: parseFloat(item.lat),
             lng: parseFloat(item.lon),
             displayName: item.display_name
