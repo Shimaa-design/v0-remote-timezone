@@ -322,6 +322,30 @@ body {
   border-color: #8b9fea;
 }
 
+.city-name-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.drag-icon {
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  color: #667eea;
+  flex-shrink: 0;
+  transform: translateX(4px);
+}
+
+.dark .drag-icon {
+  color: #8b9fea;
+}
+
+.city-name-wrapper:hover .drag-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .city-name {
   cursor: grab;
   user-select: none;
@@ -329,8 +353,12 @@ body {
   transition: color 0.2s;
 }
 
-.city-name:hover {
+.city-name-wrapper:hover .city-name {
   color: #667eea;
+}
+
+.dark .city-name-wrapper:hover .city-name {
+  color: #8b9fea;
 }
 
 .city-name:active {
