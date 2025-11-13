@@ -9,7 +9,7 @@ interface SidebarProps {
   onClose: () => void
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export const Sidebar = React.memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Overlay */}
@@ -43,4 +43,4 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       </div>
     </>
   )
-}
+})

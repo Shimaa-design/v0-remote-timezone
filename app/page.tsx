@@ -1,30 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import "./timezone.css"
 import { HamburgerMenu } from "@/components/hamburger-menu"
 import { Sidebar } from "@/components/sidebar"
 
-export default function RemoteTimezonePage() {
-  const initializedRef = useRef(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
-  useEffect(() => {
-    // Prevent double initialization in React StrictMode
-    if (initializedRef.current) return
-    initializedRef.current = true
-
-    // Use vanilla JS variables (not React state) - same as HTML version
-    let currentMinuteOffset = 0
-    let isDragging = false
-    let dragStartX = 0
-    let dragStartOffset = 0
-    let autoUpdate = true
-    let dialElements: HTMLElement[] = []
-    let lastSnappedMinute: number | null = null
-    let rafId: number | null = null
-
-    const cities = [
+// Move static data outside component to prevent recreation on every render
+const CITIES = [
       // North America
       { name: "New York", country: "USA", timezone: "America/New_York", lat: 40.7128, lng: -74.0060 },
       { name: "Los Angeles", country: "USA", timezone: "America/Los_Angeles", lat: 34.0522, lng: -118.2437 },
@@ -113,7 +95,93 @@ export default function RemoteTimezonePage() {
       { name: "Auckland", country: "New Zealand", timezone: "Pacific/Auckland", lat: -36.8485, lng: 174.7633 },
       { name: "Wellington", country: "New Zealand", timezone: "Pacific/Auckland", lat: -41.2865, lng: 174.7762 },
       { name: "Fiji", country: "Fiji", timezone: "Pacific/Fiji", lat: -17.7134, lng: 178.0650 },
-    ]
+    ] as const
+
+const COUNTRY_FLAGS: { [key: string]: string } = {
+  "USA": "🇺🇸",
+  "Canada": "🇨🇦",
+  "Mexico": "🇲🇽",
+  "Brazil": "🇧🇷",
+  "Argentina": "🇦🇷",
+  "Peru": "🇵🇪",
+  "Colombia": "🇨🇴",
+  "Chile": "🇨🇱",
+  "Venezuela": "🇻🇪",
+  "UK": "🇬🇧",
+  "France": "🇫🇷",
+  "Germany": "🇩🇪",
+  "Spain": "🇪🇸",
+  "Italy": "🇮🇹",
+  "Netherlands": "🇳🇱",
+  "Belgium": "🇧🇪",
+  "Austria": "🇦🇹",
+  "Czechia": "🇨🇿",
+  "Poland": "🇵🇱",
+  "Sweden": "🇸🇪",
+  "Denmark": "🇩🇰",
+  "Norway": "🇳🇴",
+  "Finland": "🇫🇮",
+  "Russia": "🇷🇺",
+  "Turkey": "🇹🇷",
+  "Greece": "🇬🇷",
+  "Portugal": "🇵🇹",
+  "Ireland": "🇮🇪",
+  "Switzerland": "🇨🇭",
+  "Japan": "🇯🇵",
+  "Hong Kong": "🇭🇰",
+  "Singapore": "🇸🇬",
+  "UAE": "🇦🇪",
+  "India": "🇮🇳",
+  "China": "🇨🇳",
+  "Thailand": "🇹🇭",
+  "South Korea": "🇰🇷",
+  "Philippines": "🇵🇭",
+  "Indonesia": "🇮🇩",
+  "Malaysia": "🇲🇾",
+  "Pakistan": "🇵🇰",
+  "Bangladesh": "🇧🇩",
+  "Iran": "🇮🇷",
+  "Palestine": "🇵🇸",
+  "Saudi Arabia": "🇸🇦",
+  "Qatar": "🇶🇦",
+  "Taiwan": "🇹🇼",
+  "Vietnam": "🇻🇳",
+  "Egypt": "🇪🇬",
+  "Nigeria": "🇳🇬",
+  "South Africa": "🇿🇦",
+  "Kenya": "🇰🇪",
+  "Morocco": "🇲🇦",
+  "Ghana": "🇬🇭",
+  "Algeria": "🇩🇿",
+  "Tunisia": "🇹🇳",
+  "Australia": "🇦🇺",
+  "New Zealand": "🇳🇿",
+  "Fiji": "🇫🇯"
+} as const
+
+export default function RemoteTimezonePage() {
+  const initializedRef = useRef(false)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  // Memoize callbacks to prevent unnecessary re-renders
+  const handleSidebarOpen = useCallback(() => setIsSidebarOpen(true), [])
+  const handleSidebarClose = useCallback(() => setIsSidebarOpen(false), [])
+
+  useEffect(() => {
+    // Prevent double initialization in React StrictMode
+    if (initializedRef.current) return
+    initializedRef.current = true
+
+    // Use vanilla JS variables (not React state) - same as HTML version
+    let currentMinuteOffset = 0
+    let isDragging = false
+    let dragStartX = 0
+    let dragStartOffset = 0
+    let autoUpdate = true
+    let dialElements: HTMLElement[] = []
+    let lastSnappedMinute: number | null = null
+    let rafId: number | null = null
 
     // Calculate distance between two coordinates using Haversine formula
     function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -130,7 +198,7 @@ export default function RemoteTimezonePage() {
 
     // Find nearest cities based on coordinates
     function findNearestCities(lat: number, lng: number, limit: number = 5) {
-      return cities
+      return CITIES
         .map(city => ({
           ...city,
           distance: calculateDistance(lat, lng, city.lat, city.lng)
@@ -274,72 +342,14 @@ export default function RemoteTimezonePage() {
       return []
     }
 
-    const countryFlags: { [key: string]: string } = {
-      "USA": "🇺🇸",
-      "Canada": "🇨🇦",
-      "Mexico": "🇲🇽",
-      "Brazil": "🇧🇷",
-      "Argentina": "🇦🇷",
-      "Peru": "🇵🇪",
-      "Colombia": "🇨🇴",
-      "Chile": "🇨🇱",
-      "Venezuela": "🇻🇪",
-      "UK": "🇬🇧",
-      "France": "🇫🇷",
-      "Germany": "🇩🇪",
-      "Spain": "🇪🇸",
-      "Italy": "🇮🇹",
-      "Netherlands": "🇳🇱",
-      "Belgium": "🇧🇪",
-      "Austria": "🇦🇹",
-      "Czechia": "🇨🇿",
-      "Poland": "🇵🇱",
-      "Sweden": "🇸🇪",
-      "Denmark": "🇩🇰",
-      "Norway": "🇳🇴",
-      "Finland": "🇫🇮",
-      "Russia": "🇷🇺",
-      "Turkey": "🇹🇷",
-      "Greece": "🇬🇷",
-      "Portugal": "🇵🇹",
-      "Ireland": "🇮🇪",
-      "Switzerland": "🇨🇭",
-      "Japan": "🇯🇵",
-      "Hong Kong": "🇭🇰",
-      "Singapore": "🇸🇬",
-      "UAE": "🇦🇪",
-      "India": "🇮🇳",
-      "China": "🇨🇳",
-      "Thailand": "🇹🇭",
-      "South Korea": "🇰🇷",
-      "Philippines": "🇵🇭",
-      "Indonesia": "🇮🇩",
-      "Malaysia": "🇲🇾",
-      "Pakistan": "🇵🇰",
-      "Bangladesh": "🇧🇩",
-      "Iran": "🇮🇷",
-      "Palestine": "🇵🇸",
-      "Saudi Arabia": "🇸🇦",
-      "Qatar": "🇶🇦",
-      "Taiwan": "🇹🇼",
-      "Vietnam": "🇻🇳",
-      "Egypt": "🇪🇬",
-      "Nigeria": "🇳🇬",
-      "South Africa": "🇿🇦",
-      "Kenya": "🇰🇪",
-      "Morocco": "🇲🇦",
-      "Ghana": "🇬🇭",
-      "Algeria": "🇩🇿",
-      "Tunisia": "🇹🇳",
-      "Australia": "🇦🇺",
-      "New Zealand": "🇳🇿",
-      "Fiji": "🇫🇯"
-    }
-
     let selectedCities = new Map()
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    // Reuse AudioContext or create new one
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+    }
+    const audioContext = audioContextRef.current
 
     // Helper function to correctly get time components in a specific timezone
     function getTimeInTimezone(date: Date, timezone: string) {
@@ -463,7 +473,7 @@ export default function RemoteTimezonePage() {
           const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
           const cityKey = `${city.name}-${city.timezone}`
           const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
-          const flag = countryFlags[city.country] || "🏳️"
+          const flag = COUNTRY_FLAGS[city.country] || "🏳️"
           const distanceKm = Math.round(cityWithDistance.distance)
 
           const resultItem = document.createElement("div")
@@ -508,7 +518,7 @@ export default function RemoteTimezonePage() {
 
       // If query is empty, show all cities
       const filteredCities = searchLower
-        ? cities.filter((city) => {
+        ? CITIES.filter((city) => {
             const offset = getTimezoneOffset(city.timezone)
             return (
               city.name.toLowerCase().includes(searchLower) ||
@@ -519,7 +529,7 @@ export default function RemoteTimezonePage() {
               `+${offset}h`.includes(searchLower)
             )
           })
-        : cities // Show all cities when query is empty
+        : CITIES // Show all cities when query is empty
 
       // If no exact match, show location suggestions from geocoding
       if (filteredCities.length === 0 && searchLower.length >= 3) {
@@ -585,7 +595,7 @@ export default function RemoteTimezonePage() {
         const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
         const cityKey = `${city.name}-${city.timezone}`
         const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
-        const flag = countryFlags[city.country] || "🏳️"
+        const flag = COUNTRY_FLAGS[city.country] || "🏳️"
 
         const resultItem = document.createElement("div")
         resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
@@ -621,9 +631,17 @@ export default function RemoteTimezonePage() {
       floatingSearchResults.style.display = "block"
     }
 
+    // Throttle search input to reduce DOM operations
+    let searchTimeout: NodeJS.Timeout | null = null
     floatingSearchInput?.addEventListener("input", (e) => {
       const query = (e.target as HTMLInputElement).value
-      renderFloatingSearchResults(query)
+      if (searchTimeout) {
+        clearTimeout(searchTimeout)
+      }
+      searchTimeout = setTimeout(() => {
+        renderFloatingSearchResults(query)
+        searchTimeout = null
+      }, 150) // 150ms debounce
     })
 
     floatingSearchInput?.addEventListener("focus", (e) => {
@@ -822,7 +840,9 @@ export default function RemoteTimezonePage() {
       const cityHour = cityTimeParts.hour
       const cityMinutes = cityTimeParts.minute
 
-      for (let hourOffset = -720; hourOffset <= 720; hourOffset++) {
+      // Reduce DOM elements for mobile performance: use -24 to +24 instead of -720 to +720
+      // This reduces ~15,000 DOM elements per dial to ~500 elements
+      for (let hourOffset = -24; hourOffset <= 24; hourOffset++) {
         const hour24 = (cityHour + hourOffset + 2400) % 24
         const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12
         const period = hour24 < 12 ? "AM" : "PM"
@@ -881,7 +901,7 @@ export default function RemoteTimezonePage() {
             return
           }
 
-          const centerSegmentIndex = 720
+          const centerSegmentIndex = 24
           const centerPosition = centerSegmentIndex * segmentWidth
           const minuteOffset = (cityMinutes / 60) * segmentWidth
           const wrapperWidth = dialWrapper.offsetWidth
@@ -898,7 +918,8 @@ export default function RemoteTimezonePage() {
 
     function setupDialDrag(dialWrapper: HTMLElement) {
       dialWrapper.addEventListener("mousedown", startDrag)
-      dialWrapper.addEventListener("touchstart", startDrag)
+      // Use passive: false for touchstart to allow preventDefault for better touch handling
+      dialWrapper.addEventListener("touchstart", startDrag, { passive: false })
     }
 
     function startDrag(e: MouseEvent | TouchEvent) {
@@ -954,7 +975,7 @@ export default function RemoteTimezonePage() {
         const cityTimeParts = timezone ? getTimeInTimezone(now, timezone) : { minute: 0 }
         const currentMinutes = cityTimeParts.minute
 
-        const centerSegmentIndex = 720
+        const centerSegmentIndex = 24
         const centerPosition = centerSegmentIndex * segmentWidth
         // Each segment represents 60 minutes
         const currentMinutesPixelOffset = (currentMinutes / 60) * segmentWidth
@@ -999,9 +1020,10 @@ export default function RemoteTimezonePage() {
     }
 
     document.addEventListener("mousemove", drag)
-    document.addEventListener("touchmove", drag)
+    // Use passive: false for touchmove to allow smooth dragging without scroll interference
+    document.addEventListener("touchmove", drag, { passive: false })
     document.addEventListener("mouseup", stopDrag)
-    document.addEventListener("touchend", stopDrag)
+    document.addEventListener("touchend", stopDrag, { passive: true })
 
     function resetToCurrentTime() {
       currentMinuteOffset = 0
@@ -1033,7 +1055,7 @@ export default function RemoteTimezonePage() {
           return
         }
 
-        const centerSegmentIndex = 720
+        const centerSegmentIndex = 24
         const centerPosition = centerSegmentIndex * segmentWidth
         const minuteOffset = (cityMinutes / 60) * segmentWidth
         const wrapperWidth = dialWrapper.offsetWidth
@@ -1049,7 +1071,7 @@ export default function RemoteTimezonePage() {
       const adjustedTime = new Date(now.getTime() + currentMinuteOffset * 60 * 1000)
 
       const localCityName =
-        cities.find((c) => c.timezone === localTimezone)?.name || localTimezone.split("/").pop()?.replace(/_/g, " ")
+        CITIES.find((c) => c.timezone === localTimezone)?.name || localTimezone.split("/").pop()?.replace(/_/g, " ")
       const localCity = { name: localCityName, timezone: localTimezone }
       const allCities = [localCity, ...Array.from(selectedCities.values())]
 
@@ -1264,19 +1286,25 @@ export default function RemoteTimezonePage() {
       dialElements = []
 
       const localCityName =
-        cities.find((c) => c.timezone === localTimezone)?.name || localTimezone.split("/").pop()?.replace(/_/g, " ")
+        CITIES.find((c) => c.timezone === localTimezone)?.name || localTimezone.split("/").pop()?.replace(/_/g, " ")
 
       const localCity = { name: localCityName, timezone: localTimezone }
       const allCities = [localCity, ...Array.from(selectedCities.values())]
 
-      allCities.forEach((city) => {
+      allCities.forEach((city, index) => {
         const isLocal = city.timezone === localTimezone
         const cityDial = createCityDial(city, isLocal)
         timelineSection.appendChild(cityDial)
 
         const dialWrapper = cityDial.querySelector(`[data-dial="${city.timezone}"]`) as HTMLElement
         dialElements.push(dialWrapper)
-        initializeDial(dialWrapper, city.timezone)
+
+        // Defer initialization slightly on mobile for better perceived performance
+        // Initialize local city immediately, defer others by 50ms each
+        const delay = index === 0 ? 0 : index * 50
+        setTimeout(() => {
+          initializeDial(dialWrapper, city.timezone)
+        }, delay)
 
         // Setup drag and drop handlers for reordering (except local city)
         if (!isLocal) {
@@ -1288,10 +1316,10 @@ export default function RemoteTimezonePage() {
           const cityTimezone = cityDial.querySelector('.city-timezone')
           const cityHeaderRight = cityDial.querySelector('.city-header-right')
 
-          if (cityName) cityName.addEventListener('mousedown', handleCityNameMouseDown)
-          if (dragIcon) dragIcon.addEventListener('mousedown', handleCityNameMouseDown)
-          if (cityTimezone) cityTimezone.addEventListener('mousedown', handleCityNameMouseDown)
-          if (cityHeaderRight) cityHeaderRight.addEventListener('mousedown', handleCityNameMouseDown)
+          if (cityName) cityName.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+          if (dragIcon) dragIcon.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+          if (cityTimezone) cityTimezone.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+          if (cityHeaderRight) cityHeaderRight.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
         }
       })
 
@@ -1321,23 +1349,39 @@ export default function RemoteTimezonePage() {
       if (rafId !== null) {
         cancelAnimationFrame(rafId)
       }
+      if (searchTimeout) {
+        clearTimeout(searchTimeout)
+      }
       document.removeEventListener("mousemove", drag)
-      document.removeEventListener("touchmove", drag)
+      // @ts-ignore - passive option is valid but TypeScript doesn't recognize it in removeEventListener
+      document.removeEventListener("touchmove", drag, { passive: false })
       document.removeEventListener("mouseup", stopDrag)
-      document.removeEventListener("touchend", stopDrag)
+      // @ts-ignore
+      document.removeEventListener("touchend", stopDrag, { passive: true })
       document.removeEventListener("mousemove", handleCityNameMouseMove)
       document.removeEventListener("mouseup", handleCityNameMouseUp)
+      // Note: AudioContext is kept alive for reuse (stored in ref)
+    }
+  }, [])
+
+  // Cleanup AudioContext on component unmount
+  useEffect(() => {
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+        audioContextRef.current = null
+      }
     }
   }, [])
 
   return (
     <>
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
 
       <div className="container">
         <div className="header-bar">
           <div className="header-left">
-            <HamburgerMenu onClick={() => setIsSidebarOpen(true)} />
+            <HamburgerMenu onClick={handleSidebarOpen} />
           </div>
           <h1 className="tracking-normal font-semibold leading-6 header-title text-center font-serif">🕒 Remote Timezone</h1>
           <div className="header-buttons">

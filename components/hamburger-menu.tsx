@@ -7,7 +7,7 @@ interface HamburgerMenuProps {
   onClick: () => void
 }
 
-export function HamburgerMenu({ onClick }: HamburgerMenuProps) {
+export const HamburgerMenu = React.memo(function HamburgerMenu({ onClick }: HamburgerMenuProps) {
   return (
     <button
       className="icon-button hamburger-button"
@@ -17,4 +17,4 @@ export function HamburgerMenu({ onClick }: HamburgerMenuProps) {
       <Menu className="h-[1.5rem] w-[1.5rem]" />
     </button>
   )
-}
+})
