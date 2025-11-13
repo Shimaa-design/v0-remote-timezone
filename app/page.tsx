@@ -1118,7 +1118,7 @@ export default function RemoteTimezonePage() {
     let initialMouseY = 0
     let dragPlaceholder: HTMLElement | null = null
 
-    function handleCityNameMouseDown(e: MouseEvent) {
+    function handleCityNameMouseDown(e: MouseEvent | TouchEvent) {
       const target = e.target as HTMLElement
 
       // Allow drag from city-name, drag-icon, city-timezone, or city-header-right
@@ -1141,7 +1141,7 @@ export default function RemoteTimezonePage() {
       }
 
       isDraggingCity = true
-      initialMouseY = e.clientY
+      initialMouseY = e.type === 'touchstart' ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY
       const rect = draggedContainer.getBoundingClientRect()
       dragStartY = rect.top
 
@@ -1174,18 +1174,19 @@ export default function RemoteTimezonePage() {
       e.preventDefault()
     }
 
-    function handleCityNameMouseMove(e: MouseEvent) {
+    function handleCityNameMouseMove(e: MouseEvent | TouchEvent) {
       if (!isDraggingCity || !dragClone || !draggedContainer || !dragPlaceholder) {
         return
       }
 
-      const deltaY = e.clientY - initialMouseY
+      const clientY = e.type === 'touchmove' ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY
+      const deltaY = clientY - initialMouseY
       const newTop = dragStartY + deltaY
 
       // Move the clone
       dragClone.style.top = `${newTop}px`
 
-      // Find where to insert based on mouse position
+      // Find where to insert based on touch/mouse position
       const timelineSection = document.getElementById('timelineSection')
       if (!timelineSection) return
 
@@ -1198,7 +1199,7 @@ export default function RemoteTimezonePage() {
         const rect = container.getBoundingClientRect()
         const containerMiddle = rect.top + rect.height / 2
 
-        if (e.clientY < containerMiddle) {
+        if (clientY < containerMiddle) {
           insertBeforeElement = container
           break
         }
@@ -1216,7 +1217,7 @@ export default function RemoteTimezonePage() {
       }
     }
 
-    function handleCityNameMouseUp(e: MouseEvent) {
+    function handleCityNameMouseUp(e: MouseEvent | TouchEvent) {
       if (!isDraggingCity || !draggedContainer || !dragPlaceholder) {
         return
       }
@@ -1310,16 +1311,28 @@ export default function RemoteTimezonePage() {
         if (!isLocal) {
           cityDial.dataset.cityKey = `${city.name}-${city.timezone}`
 
-          // Attach mouse handlers for custom dragging on multiple elements
+          // Attach mouse and touch handlers for custom dragging on multiple elements
           const cityName = cityDial.querySelector('.city-name')
           const dragIcon = cityDial.querySelector('.drag-icon')
           const cityTimezone = cityDial.querySelector('.city-timezone')
           const cityHeaderRight = cityDial.querySelector('.city-header-right')
 
-          if (cityName) cityName.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
-          if (dragIcon) dragIcon.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
-          if (cityTimezone) cityTimezone.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
-          if (cityHeaderRight) cityHeaderRight.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+          if (cityName) {
+            cityName.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+            cityName.addEventListener('touchstart', handleCityNameMouseDown as EventListener, { passive: false })
+          }
+          if (dragIcon) {
+            dragIcon.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+            dragIcon.addEventListener('touchstart', handleCityNameMouseDown as EventListener, { passive: false })
+          }
+          if (cityTimezone) {
+            cityTimezone.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+            cityTimezone.addEventListener('touchstart', handleCityNameMouseDown as EventListener, { passive: false })
+          }
+          if (cityHeaderRight) {
+            cityHeaderRight.addEventListener('mousedown', handleCityNameMouseDown as EventListener)
+            cityHeaderRight.addEventListener('touchstart', handleCityNameMouseDown as EventListener, { passive: false })
+          }
         }
       })
 
@@ -1338,9 +1351,11 @@ export default function RemoteTimezonePage() {
 
     window.addEventListener("resize", updateDialPositions)
 
-    // Add global mouse event listeners for city reordering
+    // Add global mouse and touch event listeners for city reordering
     document.addEventListener("mousemove", handleCityNameMouseMove)
     document.addEventListener("mouseup", handleCityNameMouseUp)
+    document.addEventListener("touchmove", handleCityNameMouseMove as EventListener, { passive: false })
+    document.addEventListener("touchend", handleCityNameMouseUp as EventListener)
 
     rebuildTimelines()
 
@@ -1360,6 +1375,9 @@ export default function RemoteTimezonePage() {
       document.removeEventListener("touchend", stopDrag, { passive: true })
       document.removeEventListener("mousemove", handleCityNameMouseMove)
       document.removeEventListener("mouseup", handleCityNameMouseUp)
+      // @ts-ignore
+      document.removeEventListener("touchmove", handleCityNameMouseMove, { passive: false })
+      document.removeEventListener("touchend", handleCityNameMouseUp)
       // Note: AudioContext is kept alive for reuse (stored in ref)
     }
   }, [])
