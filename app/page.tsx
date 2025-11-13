@@ -479,7 +479,13 @@ export default function RemoteTimezonePage() {
           if (!isAlreadySelected) {
             resultItem.addEventListener("click", (e) => {
               e.stopPropagation()
-              selectedCities.set(cityKey, city)
+              // Prepend new city (newest first) by creating new Map with new city first
+              const newSelectedCities = new Map()
+              newSelectedCities.set(cityKey, city)
+              selectedCities.forEach((value, key) => {
+                newSelectedCities.set(key, value)
+              })
+              selectedCities = newSelectedCities
               saveSelectedCities()
               rebuildTimelines()
               floatingSearchInput.value = ""
@@ -594,7 +600,13 @@ export default function RemoteTimezonePage() {
         if (!isAlreadySelected) {
           resultItem.addEventListener("click", (e) => {
             e.stopPropagation()
-            selectedCities.set(cityKey, city)
+            // Prepend new city (newest first) by creating new Map with new city first
+            const newSelectedCities = new Map()
+            newSelectedCities.set(cityKey, city)
+            selectedCities.forEach((value, key) => {
+              newSelectedCities.set(key, value)
+            })
+            selectedCities = newSelectedCities
             saveSelectedCities()
             rebuildTimelines()
             floatingSearchInput.value = ""
@@ -763,7 +775,11 @@ export default function RemoteTimezonePage() {
             <div class="city-card-content">
               <div class="city-header">
                 <div>
-                  <div>
+                  <div class="city-name-wrapper">
+                    <svg class="drag-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="5" y1="9" x2="19" y2="9"/>
+                      <line x1="5" y1="15" x2="19" y2="15"/>
+                    </svg>
                     ${homeIcon}<span class="city-name">${city.name}</span>
                   </div>
                   ${timezoneLabel}
@@ -1072,6 +1088,174 @@ export default function RemoteTimezonePage() {
       })
     }
 
+    // Custom drag and drop for city reordering
+    let isDraggingCity = false
+    let draggedContainer: HTMLElement | null = null
+    let dragClone: HTMLElement | null = null
+    let dragStartY = 0
+    let initialMouseY = 0
+    let dragPlaceholder: HTMLElement | null = null
+
+    function handleCityNameMouseDown(e: MouseEvent) {
+      const target = e.target as HTMLElement
+
+      // Allow drag from city-name, drag-icon, city-timezone, or city-header-right
+      const isDraggableElement =
+        target.classList.contains('city-name') ||
+        target.classList.contains('drag-icon') ||
+        target.closest('.drag-icon') ||
+        target.classList.contains('city-timezone') ||
+        target.classList.contains('city-header-right') ||
+        target.closest('.city-header-right')
+
+      if (!isDraggableElement) {
+        return
+      }
+
+      // Find the parent city-dial-container
+      draggedContainer = target.closest('.city-dial-container') as HTMLElement
+      if (!draggedContainer || draggedContainer.classList.contains('local')) {
+        return
+      }
+
+      isDraggingCity = true
+      initialMouseY = e.clientY
+      const rect = draggedContainer.getBoundingClientRect()
+      dragStartY = rect.top
+
+      // Create placeholder
+      dragPlaceholder = document.createElement('div')
+      dragPlaceholder.className = 'drag-placeholder'
+      dragPlaceholder.style.height = `${rect.height}px`
+      dragPlaceholder.style.marginBottom = '16px'
+      draggedContainer.parentNode?.insertBefore(dragPlaceholder, draggedContainer)
+
+      // Create visual clone
+      dragClone = draggedContainer.cloneNode(true) as HTMLElement
+      dragClone.classList.add('drag-clone')
+      dragClone.style.position = 'fixed'
+      dragClone.style.left = `${rect.left}px`
+      dragClone.style.top = `${rect.top}px`
+      dragClone.style.width = `${rect.width}px`
+      dragClone.style.pointerEvents = 'none'
+      dragClone.style.zIndex = '10000'
+      document.body.appendChild(dragClone)
+
+      // Collapse original (hide it completely)
+      draggedContainer.style.height = '0'
+      draggedContainer.style.overflow = 'hidden'
+      draggedContainer.style.marginBottom = '0'
+      draggedContainer.style.padding = '0'
+      draggedContainer.style.opacity = '0'
+      draggedContainer.style.pointerEvents = 'none'
+
+      e.preventDefault()
+    }
+
+    function handleCityNameMouseMove(e: MouseEvent) {
+      if (!isDraggingCity || !dragClone || !draggedContainer || !dragPlaceholder) {
+        return
+      }
+
+      const deltaY = e.clientY - initialMouseY
+      const newTop = dragStartY + deltaY
+
+      // Move the clone
+      dragClone.style.top = `${newTop}px`
+
+      // Find where to insert based on mouse position
+      const timelineSection = document.getElementById('timelineSection')
+      if (!timelineSection) return
+
+      const allContainers = Array.from(timelineSection.querySelectorAll('.city-dial-container:not(.local)')) as HTMLElement[]
+      let insertBeforeElement: HTMLElement | null = null
+
+      for (const container of allContainers) {
+        if (container === draggedContainer) continue
+
+        const rect = container.getBoundingClientRect()
+        const containerMiddle = rect.top + rect.height / 2
+
+        if (e.clientY < containerMiddle) {
+          insertBeforeElement = container
+          break
+        }
+      }
+
+      // Move placeholder
+      if (insertBeforeElement) {
+        insertBeforeElement.parentNode?.insertBefore(dragPlaceholder, insertBeforeElement)
+      } else {
+        // Insert at end
+        const lastNonLocal = allContainers[allContainers.length - 1]
+        if (lastNonLocal) {
+          lastNonLocal.parentNode?.insertBefore(dragPlaceholder, lastNonLocal.nextSibling)
+        }
+      }
+    }
+
+    function handleCityNameMouseUp(e: MouseEvent) {
+      if (!isDraggingCity || !draggedContainer || !dragPlaceholder) {
+        return
+      }
+
+      // Calculate new order based on placeholder position
+      const timelineSection = document.getElementById('timelineSection')
+      if (timelineSection) {
+        const allContainers = Array.from(timelineSection.querySelectorAll('.city-dial-container:not(.local)')) as HTMLElement[]
+        const placeholderIndex = Array.from(timelineSection.children).indexOf(dragPlaceholder)
+
+        // Find the position in the non-local containers
+        let targetIndex = 0
+        for (let i = 0; i < timelineSection.children.length; i++) {
+          if (timelineSection.children[i] === dragPlaceholder) {
+            break
+          }
+          if (!timelineSection.children[i].classList.contains('local')) {
+            targetIndex++
+          }
+        }
+
+        const draggedCityKey = draggedContainer.dataset.cityKey
+        if (draggedCityKey) {
+          // Reorder in Map
+          const citiesArray = Array.from(selectedCities.entries())
+          const draggedIndex = citiesArray.findIndex(([key]) => key === draggedCityKey)
+
+          if (draggedIndex !== -1) {
+            const [draggedItem] = citiesArray.splice(draggedIndex, 1)
+            citiesArray.splice(targetIndex, 0, draggedItem)
+            selectedCities = new Map(citiesArray)
+            saveSelectedCities()
+          }
+        }
+      }
+
+      // Cleanup
+      if (dragClone) {
+        dragClone.remove()
+        dragClone = null
+      }
+      if (dragPlaceholder) {
+        dragPlaceholder.remove()
+        dragPlaceholder = null
+      }
+      if (draggedContainer) {
+        draggedContainer.style.height = ''
+        draggedContainer.style.overflow = ''
+        draggedContainer.style.marginBottom = ''
+        draggedContainer.style.padding = ''
+        draggedContainer.style.opacity = ''
+        draggedContainer.style.pointerEvents = ''
+      }
+
+      isDraggingCity = false
+      draggedContainer = null
+
+      // Rebuild to reflect new order
+      rebuildTimelines()
+    }
+
     function rebuildTimelines() {
       const timelineSection = document.getElementById("timelineSection")
       if (!timelineSection) return
@@ -1093,6 +1277,22 @@ export default function RemoteTimezonePage() {
         const dialWrapper = cityDial.querySelector(`[data-dial="${city.timezone}"]`) as HTMLElement
         dialElements.push(dialWrapper)
         initializeDial(dialWrapper, city.timezone)
+
+        // Setup drag and drop handlers for reordering (except local city)
+        if (!isLocal) {
+          cityDial.dataset.cityKey = `${city.name}-${city.timezone}`
+
+          // Attach mouse handlers for custom dragging on multiple elements
+          const cityName = cityDial.querySelector('.city-name')
+          const dragIcon = cityDial.querySelector('.drag-icon')
+          const cityTimezone = cityDial.querySelector('.city-timezone')
+          const cityHeaderRight = cityDial.querySelector('.city-header-right')
+
+          if (cityName) cityName.addEventListener('mousedown', handleCityNameMouseDown)
+          if (dragIcon) dragIcon.addEventListener('mousedown', handleCityNameMouseDown)
+          if (cityTimezone) cityTimezone.addEventListener('mousedown', handleCityNameMouseDown)
+          if (cityHeaderRight) cityHeaderRight.addEventListener('mousedown', handleCityNameMouseDown)
+        }
       })
 
       setTimeout(() => {
@@ -1110,6 +1310,10 @@ export default function RemoteTimezonePage() {
 
     window.addEventListener("resize", updateDialPositions)
 
+    // Add global mouse event listeners for city reordering
+    document.addEventListener("mousemove", handleCityNameMouseMove)
+    document.addEventListener("mouseup", handleCityNameMouseUp)
+
     rebuildTimelines()
 
     return () => {
@@ -1121,6 +1325,8 @@ export default function RemoteTimezonePage() {
       document.removeEventListener("touchmove", drag)
       document.removeEventListener("mouseup", stopDrag)
       document.removeEventListener("touchend", stopDrag)
+      document.removeEventListener("mousemove", handleCityNameMouseMove)
+      document.removeEventListener("mouseup", handleCityNameMouseUp)
     }
   }, [])
 
