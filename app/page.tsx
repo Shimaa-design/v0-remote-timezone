@@ -776,7 +776,7 @@ export default function RemoteTimezonePage() {
               <div class="city-header">
                 <div>
                   <div>
-                    ${homeIcon}<span class="city-name">${city.name}</span>
+                    ${homeIcon}<span class="city-name" draggable="true" style="cursor: grab;">${city.name}</span>
                   </div>
                   ${timezoneLabel}
                 </div>
@@ -1086,20 +1086,36 @@ export default function RemoteTimezonePage() {
 
     // Drag and drop handlers for city reordering
     let draggedElement: HTMLElement | null = null
+    let draggedContainer: HTMLElement | null = null
 
     function handleDragStart(e: DragEvent) {
       const target = e.target as HTMLElement
-      // Prevent drag if initiated from dial wrapper (for time dragging) or delete button
-      if (target.closest('.dial-wrapper') || target.closest('.delete-button-hidden')) {
+
+      // Only allow drag from city-name element
+      if (!target.classList.contains('city-name')) {
         e.preventDefault()
         return
       }
 
-      draggedElement = e.currentTarget as HTMLElement
-      draggedElement.classList.add('dragging')
+      // Find the parent city-dial-container
+      draggedContainer = target.closest('.city-dial-container') as HTMLElement
+      if (!draggedContainer) {
+        e.preventDefault()
+        return
+      }
+
+      draggedElement = target
+      draggedContainer.classList.add('dragging')
+
       if (e.dataTransfer) {
         e.dataTransfer.effectAllowed = 'move'
-        e.dataTransfer.setData('text/html', draggedElement.innerHTML)
+        e.dataTransfer.setData('text/plain', draggedContainer.dataset.cityKey || '')
+        // Create a custom drag image showing the whole card
+        const dragImage = draggedContainer.cloneNode(true) as HTMLElement
+        dragImage.style.opacity = '0.8'
+        document.body.appendChild(dragImage)
+        e.dataTransfer.setDragImage(dragImage, 0, 0)
+        setTimeout(() => document.body.removeChild(dragImage), 0)
       }
     }
 
@@ -1113,8 +1129,8 @@ export default function RemoteTimezonePage() {
 
     function handleDragEnter(e: DragEvent) {
       const target = e.currentTarget as HTMLElement
-      // Don't add drag-over class to the dragged element itself
-      if (target !== draggedElement && !target.classList.contains('local')) {
+      // Don't add drag-over class to the dragged container itself
+      if (target !== draggedContainer && !target.classList.contains('local')) {
         target.classList.add('drag-over')
       }
     }
@@ -1131,7 +1147,7 @@ export default function RemoteTimezonePage() {
       const dropTarget = e.currentTarget as HTMLElement
       dropTarget.classList.remove('drag-over')
 
-      if (!draggedElement || draggedElement === dropTarget) {
+      if (!draggedContainer || draggedContainer === dropTarget) {
         return false
       }
 
@@ -1140,7 +1156,7 @@ export default function RemoteTimezonePage() {
         return false
       }
 
-      const draggedCityKey = draggedElement.dataset.cityKey
+      const draggedCityKey = draggedContainer.dataset.cityKey
       const dropTargetCityKey = dropTarget.dataset.cityKey
 
       if (!draggedCityKey || !dropTargetCityKey) {
@@ -1168,8 +1184,9 @@ export default function RemoteTimezonePage() {
     }
 
     function handleDragEnd(e: DragEvent) {
-      const target = e.currentTarget as HTMLElement
-      target.classList.remove('dragging')
+      if (draggedContainer) {
+        draggedContainer.classList.remove('dragging')
+      }
 
       // Clean up all drag-over classes
       document.querySelectorAll('.drag-over').forEach(el => {
@@ -1177,6 +1194,7 @@ export default function RemoteTimezonePage() {
       })
 
       draggedElement = null
+      draggedContainer = null
     }
 
     function rebuildTimelines() {
@@ -1201,11 +1219,11 @@ export default function RemoteTimezonePage() {
         dialElements.push(dialWrapper)
         initializeDial(dialWrapper, city.timezone)
 
-        // Make cities draggable for reordering (except local city)
+        // Setup drag and drop handlers for reordering (except local city)
         if (!isLocal) {
-          cityDial.draggable = true
           cityDial.dataset.cityKey = `${city.name}-${city.timezone}`
 
+          // Attach handlers to container, but dragging is only initiated from city-name
           cityDial.addEventListener('dragstart', handleDragStart)
           cityDial.addEventListener('dragover', handleDragOver)
           cityDial.addEventListener('drop', handleDrop)

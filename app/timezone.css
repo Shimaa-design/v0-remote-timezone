@@ -302,25 +302,27 @@ body {
   color: #667eea;
 }
 
-.city-dial-container:active {
-  cursor: grabbing;
-}
-
-.city-dial-container.local {
-  cursor: default;
-}
-
 .city-dial-container.dragging {
-  opacity: 0.4;
-  transform: scale(0.98);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-  cursor: grabbing;
+  opacity: 0.5;
+  transform: scale(0.95) rotate(2deg);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 .city-dial-container.drag-over {
   border-top: 4px solid #667eea;
-  margin-top: 10px;
-  transform: translateY(10px);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.city-name[draggable="true"] {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.city-name[draggable="true"]:active {
+  cursor: grabbing;
 }
 
 h1 {
@@ -589,7 +591,6 @@ h1 {
   margin-bottom: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
-  cursor: grab;
   transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
