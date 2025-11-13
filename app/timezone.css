@@ -325,16 +325,18 @@ body {
 .city-name-wrapper {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   position: relative;
 }
 
 .drag-icon {
+  position: absolute;
+  left: 0;
   opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   color: #667eea;
   flex-shrink: 0;
-  transform: translateX(4px);
+  transform: translateX(-8px);
+  pointer-events: none;
 }
 
 .dark .drag-icon {
@@ -350,11 +352,13 @@ body {
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
-  transition: color 0.2s;
+  transition: color 0.2s ease, transform 0.2s ease;
+  transform: translateX(0);
 }
 
 .city-name-wrapper:hover .city-name {
   color: #667eea;
+  transform: translateX(22px);
 }
 
 .dark .city-name-wrapper:hover .city-name {
