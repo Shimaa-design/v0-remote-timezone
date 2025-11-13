@@ -840,7 +840,9 @@ export default function RemoteTimezonePage() {
       const cityHour = cityTimeParts.hour
       const cityMinutes = cityTimeParts.minute
 
-      for (let hourOffset = -720; hourOffset <= 720; hourOffset++) {
+      // Reduce DOM elements for mobile performance: use -24 to +24 instead of -720 to +720
+      // This reduces ~15,000 DOM elements per dial to ~500 elements
+      for (let hourOffset = -24; hourOffset <= 24; hourOffset++) {
         const hour24 = (cityHour + hourOffset + 2400) % 24
         const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12
         const period = hour24 < 12 ? "AM" : "PM"
@@ -899,7 +901,7 @@ export default function RemoteTimezonePage() {
             return
           }
 
-          const centerSegmentIndex = 720
+          const centerSegmentIndex = 24
           const centerPosition = centerSegmentIndex * segmentWidth
           const minuteOffset = (cityMinutes / 60) * segmentWidth
           const wrapperWidth = dialWrapper.offsetWidth
@@ -916,7 +918,8 @@ export default function RemoteTimezonePage() {
 
     function setupDialDrag(dialWrapper: HTMLElement) {
       dialWrapper.addEventListener("mousedown", startDrag)
-      dialWrapper.addEventListener("touchstart", startDrag)
+      // Use passive: false for touchstart to allow preventDefault for better touch handling
+      dialWrapper.addEventListener("touchstart", startDrag, { passive: false })
     }
 
     function startDrag(e: MouseEvent | TouchEvent) {
@@ -972,7 +975,7 @@ export default function RemoteTimezonePage() {
         const cityTimeParts = timezone ? getTimeInTimezone(now, timezone) : { minute: 0 }
         const currentMinutes = cityTimeParts.minute
 
-        const centerSegmentIndex = 720
+        const centerSegmentIndex = 24
         const centerPosition = centerSegmentIndex * segmentWidth
         // Each segment represents 60 minutes
         const currentMinutesPixelOffset = (currentMinutes / 60) * segmentWidth
@@ -1017,9 +1020,10 @@ export default function RemoteTimezonePage() {
     }
 
     document.addEventListener("mousemove", drag)
-    document.addEventListener("touchmove", drag)
+    // Use passive: false for touchmove to allow smooth dragging without scroll interference
+    document.addEventListener("touchmove", drag, { passive: false })
     document.addEventListener("mouseup", stopDrag)
-    document.addEventListener("touchend", stopDrag)
+    document.addEventListener("touchend", stopDrag, { passive: true })
 
     function resetToCurrentTime() {
       currentMinuteOffset = 0
@@ -1051,7 +1055,7 @@ export default function RemoteTimezonePage() {
           return
         }
 
-        const centerSegmentIndex = 720
+        const centerSegmentIndex = 24
         const centerPosition = centerSegmentIndex * segmentWidth
         const minuteOffset = (cityMinutes / 60) * segmentWidth
         const wrapperWidth = dialWrapper.offsetWidth
@@ -1287,14 +1291,20 @@ export default function RemoteTimezonePage() {
       const localCity = { name: localCityName, timezone: localTimezone }
       const allCities = [localCity, ...Array.from(selectedCities.values())]
 
-      allCities.forEach((city) => {
+      allCities.forEach((city, index) => {
         const isLocal = city.timezone === localTimezone
         const cityDial = createCityDial(city, isLocal)
         timelineSection.appendChild(cityDial)
 
         const dialWrapper = cityDial.querySelector(`[data-dial="${city.timezone}"]`) as HTMLElement
         dialElements.push(dialWrapper)
-        initializeDial(dialWrapper, city.timezone)
+
+        // Defer initialization slightly on mobile for better perceived performance
+        // Initialize local city immediately, defer others by 50ms each
+        const delay = index === 0 ? 0 : index * 50
+        setTimeout(() => {
+          initializeDial(dialWrapper, city.timezone)
+        }, delay)
 
         // Setup drag and drop handlers for reordering (except local city)
         if (!isLocal) {
@@ -1343,9 +1353,11 @@ export default function RemoteTimezonePage() {
         clearTimeout(searchTimeout)
       }
       document.removeEventListener("mousemove", drag)
-      document.removeEventListener("touchmove", drag)
+      // @ts-ignore - passive option is valid but TypeScript doesn't recognize it in removeEventListener
+      document.removeEventListener("touchmove", drag, { passive: false })
       document.removeEventListener("mouseup", stopDrag)
-      document.removeEventListener("touchend", stopDrag)
+      // @ts-ignore
+      document.removeEventListener("touchend", stopDrag, { passive: true })
       document.removeEventListener("mousemove", handleCityNameMouseMove)
       document.removeEventListener("mouseup", handleCityNameMouseUp)
       // Note: AudioContext is kept alive for reuse (stored in ref)

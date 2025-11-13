@@ -645,6 +645,10 @@ h1 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
   transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  /* Optimize rendering for mobile */
+  contain: layout style;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .dark .city-dial-container {
@@ -742,8 +746,12 @@ h1 {
   border-radius: 10px;
   cursor: grab;
   user-select: none;
-  touch-action: pan-y;
+  /* Allow horizontal panning for dial dragging on mobile */
+  touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
+  /* GPU acceleration for better mobile performance */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .dark .dial-wrapper {
@@ -762,6 +770,11 @@ h1 {
   display: flex;
   align-items: center;
   will-change: transform;
+  /* GPU acceleration for smoother dragging on mobile */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .hour-segment {
@@ -776,6 +789,8 @@ h1 {
   border-right: 1px solid #d0d0d0;
   flex-shrink: 0;
   position: relative;
+  /* Optimize rendering on mobile */
+  contain: layout style paint;
 }
 
 .dark .hour-segment {
