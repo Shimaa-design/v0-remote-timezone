@@ -166,9 +166,21 @@ export default function RemoteTimezonePage() {
             const itemClass = item.class?.toLowerCase() || ''
             const displayName = item.display_name?.toLowerCase() || ''
 
+            // EXCLUDE: Any result with postal codes (5-6 digit numbers or patterns like 94614, 21519)
+            // This removes overly specific addresses
+            if (/\b\d{5,6}\b/.test(displayName)) {
+              return false
+            }
+
+            // EXCLUDE: Airports and specific facilities
+            const facilityKeywords = ['airport', 'international airport', 'parkway', 'boulevard', 'avenue', 'street', 'road']
+            if (facilityKeywords.some(keyword => displayName.includes(keyword))) {
+              return false
+            }
+
             // Exclude very specific locations with too many commas (overly detailed addresses)
             const commaCount = (displayName.match(/,/g) || []).length
-            if (commaCount > 6) {
+            if (commaCount > 5) {
               return false
             }
 
@@ -186,7 +198,7 @@ export default function RemoteTimezonePage() {
             }
 
             // Exclude non-geographic places (businesses, buildings, amenities)
-            const excludedClasses = ['tourism', 'amenity', 'shop', 'leisure', 'building', 'highway']
+            const excludedClasses = ['tourism', 'amenity', 'shop', 'leisure', 'building', 'highway', 'aeroway']
             if (excludedClasses.includes(itemClass)) {
               return false
             }
