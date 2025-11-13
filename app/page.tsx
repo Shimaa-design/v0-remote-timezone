@@ -206,9 +206,23 @@ export default function RemoteTimezonePage() {
             return true
           })
 
-          // Sort by importance (OSM provides importance score, higher is better)
-          // Major cities like Alexandria, Egypt will have higher importance
+          // Smart sorting: prioritize results where city name starts with search query
+          // This ensures "alex" shows "Alexandria" before "Alexanderplatz"
           const sortedData = filteredData.sort((a: any, b: any) => {
+            // Get the first part of display name (the city/location name)
+            const nameA = (a.display_name?.split(',')[0] || '').toLowerCase().trim()
+            const nameB = (b.display_name?.split(',')[0] || '').toLowerCase().trim()
+            const queryLower = searchQuery.toLowerCase().trim()
+
+            // Check if names start with the search query
+            const aStartsWith = nameA.startsWith(queryLower)
+            const bStartsWith = nameB.startsWith(queryLower)
+
+            // Prioritize results that start with query
+            if (aStartsWith && !bStartsWith) return -1
+            if (!aStartsWith && bStartsWith) return 1
+
+            // If both start with query (or neither do), sort by importance
             const importanceA = parseFloat(a.importance || 0)
             const importanceB = parseFloat(b.importance || 0)
             return importanceB - importanceA
