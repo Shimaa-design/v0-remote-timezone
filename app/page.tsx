@@ -479,7 +479,13 @@ export default function RemoteTimezonePage() {
           if (!isAlreadySelected) {
             resultItem.addEventListener("click", (e) => {
               e.stopPropagation()
-              selectedCities.set(cityKey, city)
+              // Prepend new city (newest first) by creating new Map with new city first
+              const newSelectedCities = new Map()
+              newSelectedCities.set(cityKey, city)
+              selectedCities.forEach((value, key) => {
+                newSelectedCities.set(key, value)
+              })
+              selectedCities = newSelectedCities
               saveSelectedCities()
               rebuildTimelines()
               floatingSearchInput.value = ""
@@ -594,7 +600,13 @@ export default function RemoteTimezonePage() {
         if (!isAlreadySelected) {
           resultItem.addEventListener("click", (e) => {
             e.stopPropagation()
-            selectedCities.set(cityKey, city)
+            // Prepend new city (newest first) by creating new Map with new city first
+            const newSelectedCities = new Map()
+            newSelectedCities.set(cityKey, city)
+            selectedCities.forEach((value, key) => {
+              newSelectedCities.set(key, value)
+            })
+            selectedCities = newSelectedCities
             saveSelectedCities()
             rebuildTimelines()
             floatingSearchInput.value = ""
@@ -1072,6 +1084,101 @@ export default function RemoteTimezonePage() {
       })
     }
 
+    // Drag and drop handlers for city reordering
+    let draggedElement: HTMLElement | null = null
+
+    function handleDragStart(e: DragEvent) {
+      const target = e.target as HTMLElement
+      // Prevent drag if initiated from dial wrapper (for time dragging) or delete button
+      if (target.closest('.dial-wrapper') || target.closest('.delete-button-hidden')) {
+        e.preventDefault()
+        return
+      }
+
+      draggedElement = e.currentTarget as HTMLElement
+      draggedElement.classList.add('dragging')
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', draggedElement.innerHTML)
+      }
+    }
+
+    function handleDragOver(e: DragEvent) {
+      e.preventDefault()
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'move'
+      }
+      return false
+    }
+
+    function handleDragEnter(e: DragEvent) {
+      const target = e.currentTarget as HTMLElement
+      // Don't add drag-over class to the dragged element itself
+      if (target !== draggedElement && !target.classList.contains('local')) {
+        target.classList.add('drag-over')
+      }
+    }
+
+    function handleDragLeave(e: DragEvent) {
+      const target = e.currentTarget as HTMLElement
+      target.classList.remove('drag-over')
+    }
+
+    function handleDrop(e: DragEvent) {
+      e.stopPropagation()
+      e.preventDefault()
+
+      const dropTarget = e.currentTarget as HTMLElement
+      dropTarget.classList.remove('drag-over')
+
+      if (!draggedElement || draggedElement === dropTarget) {
+        return false
+      }
+
+      // Don't allow dropping on local city
+      if (dropTarget.classList.contains('local')) {
+        return false
+      }
+
+      const draggedCityKey = draggedElement.dataset.cityKey
+      const dropTargetCityKey = dropTarget.dataset.cityKey
+
+      if (!draggedCityKey || !dropTargetCityKey) {
+        return false
+      }
+
+      // Reorder cities in the Map
+      const citiesArray = Array.from(selectedCities.entries())
+      const draggedIndex = citiesArray.findIndex(([key]) => key === draggedCityKey)
+      const dropIndex = citiesArray.findIndex(([key]) => key === dropTargetCityKey)
+
+      if (draggedIndex !== -1 && dropIndex !== -1) {
+        // Remove dragged item
+        const [draggedItem] = citiesArray.splice(draggedIndex, 1)
+        // Insert at new position
+        citiesArray.splice(dropIndex, 0, draggedItem)
+
+        // Rebuild the Map with new order
+        selectedCities = new Map(citiesArray)
+        saveSelectedCities()
+        rebuildTimelines()
+      }
+
+      return false
+    }
+
+    function handleDragEnd(e: DragEvent) {
+      const target = e.currentTarget as HTMLElement
+      target.classList.remove('dragging')
+
+      // Clean up all drag-over classes
+      document.querySelectorAll('.drag-over').forEach(el => {
+        el.classList.remove('drag-over')
+      })
+
+      draggedElement = null
+    }
+
     function rebuildTimelines() {
       const timelineSection = document.getElementById("timelineSection")
       if (!timelineSection) return
@@ -1093,6 +1200,19 @@ export default function RemoteTimezonePage() {
         const dialWrapper = cityDial.querySelector(`[data-dial="${city.timezone}"]`) as HTMLElement
         dialElements.push(dialWrapper)
         initializeDial(dialWrapper, city.timezone)
+
+        // Make cities draggable for reordering (except local city)
+        if (!isLocal) {
+          cityDial.draggable = true
+          cityDial.dataset.cityKey = `${city.name}-${city.timezone}`
+
+          cityDial.addEventListener('dragstart', handleDragStart)
+          cityDial.addEventListener('dragover', handleDragOver)
+          cityDial.addEventListener('drop', handleDrop)
+          cityDial.addEventListener('dragend', handleDragEnd)
+          cityDial.addEventListener('dragenter', handleDragEnter)
+          cityDial.addEventListener('dragleave', handleDragLeave)
+        }
       })
 
       setTimeout(() => {

@@ -302,13 +302,25 @@ body {
   color: #667eea;
 }
 
+.city-dial-container:active {
+  cursor: grabbing;
+}
+
+.city-dial-container.local {
+  cursor: default;
+}
+
 .city-dial-container.dragging {
-  opacity: 0.5;
-  transform: scale(0.95);
+  opacity: 0.4;
+  transform: scale(0.98);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  cursor: grabbing;
 }
 
 .city-dial-container.drag-over {
-  border-top: 3px solid #667eea;
+  border-top: 4px solid #667eea;
+  margin-top: 10px;
+  transform: translateY(10px);
 }
 
 h1 {
@@ -577,6 +589,8 @@ h1 {
   margin-bottom: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
+  cursor: grab;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .dark .city-dial-container {
