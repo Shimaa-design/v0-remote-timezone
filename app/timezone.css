@@ -356,6 +356,10 @@ body {
   transform: translateX(0);
 }
 
+.city-dial-container.local .city-name {
+  cursor: default;
+}
+
 .city-name-wrapper:hover .city-name {
   color: #667eea;
   transform: translateX(22px);
@@ -367,6 +371,10 @@ body {
 
 .city-name:active {
   cursor: grabbing;
+}
+
+.city-dial-container.local .city-name:active {
+  cursor: default;
 }
 
 h1 {
