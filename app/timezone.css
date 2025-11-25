@@ -344,7 +344,14 @@ body {
   color: #8b9fea;
 }
 
-.city-name-wrapper:hover .drag-icon {
+.city-name-wrapper:hover .drag-icon,
+.city-header-left:hover .drag-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Show drag icon when hovering over right section too */
+.city-header:has(.city-header-right:hover) .drag-icon {
   opacity: 1;
   transform: translateX(0);
 }
@@ -361,12 +368,24 @@ body {
   cursor: default;
 }
 
-.city-name-wrapper:hover .city-name {
+.city-name-wrapper:hover .city-name,
+.city-header-left:hover .city-name {
   color: #667eea;
   transform: translateX(22px);
 }
 
-.dark .city-name-wrapper:hover .city-name {
+/* Shift city name when hovering over right section too */
+.city-header:has(.city-header-right:hover) .city-name {
+  color: #667eea;
+  transform: translateX(22px);
+}
+
+.dark .city-name-wrapper:hover .city-name,
+.dark .city-header-left:hover .city-name {
+  color: #8b9fea;
+}
+
+.dark .city-header:has(.city-header-right:hover) .city-name {
   color: #8b9fea;
 }
 

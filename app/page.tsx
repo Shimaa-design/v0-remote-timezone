@@ -805,7 +805,7 @@ export default function RemoteTimezonePage() {
       if (isLocal) {
         container.innerHTML = `
           <div class="city-header">
-            <div>
+            <div class="city-header-left">
               <div>
                 ${homeIcon}<span class="city-name">${city.name}</span>
               </div>
@@ -827,9 +827,9 @@ export default function RemoteTimezonePage() {
         // For non-local cities, add slide wrapper with hidden delete button
         container.innerHTML = `
           <div class="city-card-slide-wrapper">
-            <div class="city-card-content">
+            <div class="city-card-content" title="Click for options">
               <div class="city-header">
-                <div>
+                <div class="city-header-left" title="Rearrange city">
                   <div class="city-name-wrapper">
                     <svg class="drag-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <line x1="5" y1="9" x2="19" y2="9"/>
@@ -839,7 +839,7 @@ export default function RemoteTimezonePage() {
                   </div>
                   ${timezoneLabel}
                 </div>
-                <div class="city-header-right">
+                <div class="city-header-right" title="Rearrange city">
                   <div class="city-current-time">
                     <div class="time-display" data-time="${city.timezone}" data-city-name="${city.name}">--:--</div>
                     <div class="local-time-label" data-local-time="${city.timezone}" data-city-name="${city.name}"></div>
