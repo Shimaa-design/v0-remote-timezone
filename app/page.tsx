@@ -450,6 +450,35 @@ export default function RemoteTimezonePage() {
       return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
     }
 
+    function getUTCOffset(timezone: string): string {
+      try {
+        const now = new Date()
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: timezone,
+          timeZoneName: 'longOffset'
+        })
+        const parts = formatter.formatToParts(now)
+        const offsetPart = parts.find(part => part.type === 'timeZoneName')
+        if (offsetPart?.value) {
+          // Convert "GMT+08:00" to "UTC+8"
+          const match = offsetPart.value.match(/GMT([+-])(\d+):?(\d*)/)
+          if (match) {
+            const sign = match[1]
+            const hours = parseInt(match[2])
+            const minutes = match[3] ? parseInt(match[3]) : 0
+            if (minutes === 0) {
+              return `UTC${sign}${hours}`
+            } else {
+              return `UTC${sign}${hours}:${minutes.toString().padStart(2, '0')}`
+            }
+          }
+        }
+        return ''
+      } catch (e) {
+        return ''
+      }
+    }
+
     function showNearestCities(lat: number, lng: number, locationName: string) {
       if (!floatingSearchResults) return
 
@@ -762,7 +791,15 @@ export default function RemoteTimezonePage() {
       }
 
       const homeIcon = isLocal ? `🏠 ` : ""
-      const timezoneLabel = offsetString ? `<span class="city-timezone">${offsetString}</span>` : ""
+      const utcOffset = getUTCOffset(city.timezone)
+
+      let timezoneLabel = ""
+      if (offsetString) {
+        timezoneLabel = `<span class="city-timezone">${offsetString}${utcOffset ? ` (${utcOffset})` : ""}</span>`
+      } else if (isLocal && utcOffset) {
+        // For local city, show UTC offset only
+        timezoneLabel = `<span class="city-timezone">(${utcOffset})</span>`
+      }
 
       // For local city, no slide wrapper needed
       if (isLocal) {
