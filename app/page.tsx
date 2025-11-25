@@ -827,11 +827,11 @@ export default function RemoteTimezonePage() {
         // For non-local cities, add slide wrapper with hidden delete button
         container.innerHTML = `
           <div class="city-card-slide-wrapper">
-            <div class="city-card-content">
+            <div class="city-card-content" title="Click for options">
               <div class="city-header">
                 <div>
                   <div class="city-name-wrapper">
-                    <svg class="drag-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg class="drag-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" title="Rearrange city">
                       <line x1="5" y1="9" x2="19" y2="9"/>
                       <line x1="5" y1="15" x2="19" y2="15"/>
                     </svg>
