@@ -805,7 +805,7 @@ export default function RemoteTimezonePage() {
       if (isLocal) {
         container.innerHTML = `
           <div class="city-header">
-            <div>
+            <div class="city-header-left">
               <div>
                 ${homeIcon}<span class="city-name">${city.name}</span>
               </div>
@@ -829,7 +829,7 @@ export default function RemoteTimezonePage() {
           <div class="city-card-slide-wrapper">
             <div class="city-card-content">
               <div class="city-header">
-                <div>
+                <div class="city-header-left">
                   <div class="city-name-wrapper">
                     <svg class="drag-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" title="Rearrange city">
                       <line x1="5" y1="9" x2="19" y2="9"/>

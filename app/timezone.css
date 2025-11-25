@@ -345,7 +345,8 @@ body {
 }
 
 .city-name-wrapper:hover .drag-icon,
-.city-header:hover .drag-icon {
+.city-header-left:hover .drag-icon,
+.city-header-right:hover .drag-icon {
   opacity: 1;
   transform: translateX(0);
 }
@@ -363,13 +364,15 @@ body {
 }
 
 .city-name-wrapper:hover .city-name,
-.city-header:hover .city-name {
+.city-header-left:hover .city-name,
+.city-header-right:hover .city-name {
   color: #667eea;
   transform: translateX(22px);
 }
 
 .dark .city-name-wrapper:hover .city-name,
-.dark .city-header:hover .city-name {
+.dark .city-header-left:hover .city-name,
+.dark .city-header-right:hover .city-name {
   color: #8b9fea;
 }
 
