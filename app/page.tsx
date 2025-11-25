@@ -450,21 +450,6 @@ export default function RemoteTimezonePage() {
       return diffHours !== 0 ? `${diffHours >= 0 ? "+" : ""}${diffHours}` : "0"
     }
 
-    function getTimezoneAbbreviation(timezone: string): string {
-      try {
-        const now = new Date()
-        const formatter = new Intl.DateTimeFormat('en-US', {
-          timeZone: timezone,
-          timeZoneName: 'short'
-        })
-        const parts = formatter.formatToParts(now)
-        const timeZoneName = parts.find(part => part.type === 'timeZoneName')
-        return timeZoneName?.value || ''
-      } catch (e) {
-        return ''
-      }
-    }
-
     function getUTCOffset(timezone: string): string {
       try {
         const now = new Date()
@@ -806,15 +791,14 @@ export default function RemoteTimezonePage() {
       }
 
       const homeIcon = isLocal ? `🏠 ` : ""
-      const tzAbbreviation = getTimezoneAbbreviation(city.timezone)
       const utcOffset = getUTCOffset(city.timezone)
 
       let timezoneLabel = ""
       if (offsetString) {
-        timezoneLabel = `<span class="city-timezone">${tzAbbreviation ? `${tzAbbreviation} ` : ""}${offsetString}${utcOffset ? ` (${utcOffset})` : ""}</span>`
-      } else if (isLocal && (tzAbbreviation || utcOffset)) {
-        // For local city, show abbreviation and UTC offset even without offset string
-        timezoneLabel = `<span class="city-timezone">${tzAbbreviation}${utcOffset ? ` (${utcOffset})` : ""}</span>`
+        timezoneLabel = `<span class="city-timezone">${offsetString}${utcOffset ? ` (${utcOffset})` : ""}</span>`
+      } else if (isLocal && utcOffset) {
+        // For local city, show UTC offset only
+        timezoneLabel = `<span class="city-timezone">(${utcOffset})</span>`
       }
 
       // For local city, no slide wrapper needed
