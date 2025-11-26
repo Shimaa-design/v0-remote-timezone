@@ -1066,6 +1066,7 @@ export default function RemoteTimezonePage() {
       currentMinuteOffset = 0
       autoUpdate = true
       updateDialPositions()
+      updateAllTimes()
     }
 
     document.getElementById("resetButton")?.addEventListener("click", resetToCurrentTime)
