@@ -537,7 +537,10 @@ export default function RemoteTimezonePage() {
           resultItem.innerHTML = `
             <div class="floating-search-result-main">
               <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
-              <div class="floating-search-result-timezone">${utcOffset ? `(${utcOffset})` : offsetDisplay}</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="floating-search-result-timezone">${offsetDisplay}</div>
+                ${utcOffset ? `<div class="floating-search-result-utc">(${utcOffset})</div>` : ''}
+              </div>
             </div>
             ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
           `
@@ -666,7 +669,10 @@ export default function RemoteTimezonePage() {
         resultItem.innerHTML = `
           <div class="floating-search-result-main">
             <div class="floating-search-result-name">${flag} ${city.name}, ${city.country}</div>
-            <div class="floating-search-result-timezone">${utcOffset ? `(${utcOffset})` : offsetDisplay}</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="floating-search-result-timezone">${offsetDisplay}</div>
+              ${utcOffset ? `<div class="floating-search-result-utc">(${utcOffset})</div>` : ''}
+            </div>
           </div>
           ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
         `

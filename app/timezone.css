@@ -1108,11 +1108,19 @@ h1 {
   font-size: 0.9rem;
   color: #667eea;
   font-weight: 500;
-  margin-left: 10px;
 }
 
 .dark .floating-search-result-timezone {
   color: #8b9fea;
+}
+
+.floating-search-result-utc {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.dark .floating-search-result-utc {
+  color: #666;
 }
 
 .floating-search-result-added {
