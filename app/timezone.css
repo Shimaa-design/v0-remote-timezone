@@ -1215,8 +1215,21 @@ h1 {
   }
 
   .floating-search-container {
-    bottom: 24px; 
+    bottom: 24px;
     width: 90%;
+  }
+
+  /* Ensure input stays visible when keyboard appears */
+  .floating-search-input:focus {
+    position: relative;
+    z-index: 1000;
+  }
+
+  /* Add safe area support for iOS devices */
+  @supports (padding: max(0px)) {
+    .floating-search-container {
+      bottom: max(24px, env(safe-area-inset-bottom));
+    }
   }
 
   .floating-search-input {

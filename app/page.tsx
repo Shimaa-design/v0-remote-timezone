@@ -774,6 +774,18 @@ export default function RemoteTimezonePage() {
       const query = (e.target as HTMLInputElement).value
       // Always show results on focus, even if query is empty (shows full list)
       renderFloatingSearchResults(query)
+
+      // Fix mobile keyboard overlap issue
+      // Wait for keyboard to appear, then scroll input into view
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        setTimeout(() => {
+          (e.target as HTMLInputElement).scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest"
+          })
+        }, 300)
+      }
     })
 
     // Close floating search results when clicking outside
@@ -785,6 +797,30 @@ export default function RemoteTimezonePage() {
         }
       }
     })
+
+    // Handle mobile keyboard appearance using Visual Viewport API
+    if (typeof window !== "undefined" && window.visualViewport) {
+      const floatingSearchContainer = document.querySelector(".floating-search-container") as HTMLElement
+
+      window.visualViewport.addEventListener("resize", () => {
+        if (!floatingSearchContainer) return
+
+        const viewportHeight = window.visualViewport!.height
+        const windowHeight = window.innerHeight
+
+        // Keyboard is visible if viewport height is significantly less than window height
+        const keyboardVisible = windowHeight - viewportHeight > 150
+
+        if (keyboardVisible) {
+          // Position the search bar just above the keyboard
+          const bottomOffset = windowHeight - viewportHeight
+          floatingSearchContainer.style.bottom = `${bottomOffset + 10}px`
+        } else {
+          // Reset to default position when keyboard is hidden
+          floatingSearchContainer.style.bottom = ""
+        }
+      })
+    }
 
     // Toggle slide state when clicking on city card content
     document.addEventListener("click", (e) => {
