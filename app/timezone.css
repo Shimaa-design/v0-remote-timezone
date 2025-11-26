@@ -1053,6 +1053,7 @@ h1 {
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.2s;
+  position: relative;
 }
 
 .dark .floating-search-result-item {
@@ -1108,11 +1109,19 @@ h1 {
   font-size: 0.9rem;
   color: #667eea;
   font-weight: 500;
-  margin-left: 10px;
 }
 
 .dark .floating-search-result-timezone {
   color: #8b9fea;
+}
+
+.floating-search-result-utc {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.dark .floating-search-result-utc {
+  color: #666;
 }
 
 .floating-search-result-added {

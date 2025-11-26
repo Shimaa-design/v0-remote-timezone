@@ -453,19 +453,46 @@ export default function RemoteTimezonePage() {
     function getUTCOffset(timezone: string): string {
       try {
         const now = new Date()
-        const formatter = new Intl.DateTimeFormat('en-US', {
+
+        // Try longOffset first
+        let formatter = new Intl.DateTimeFormat('en-US', {
           timeZone: timezone,
           timeZoneName: 'longOffset'
         })
-        const parts = formatter.formatToParts(now)
-        const offsetPart = parts.find(part => part.type === 'timeZoneName')
+        let parts = formatter.formatToParts(now)
+        let offsetPart = parts.find(part => part.type === 'timeZoneName')
+
+        // If longOffset doesn't work, try shortOffset
+        if (!offsetPart?.value) {
+          formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            timeZoneName: 'shortOffset'
+          })
+          parts = formatter.formatToParts(now)
+          offsetPart = parts.find(part => part.type === 'timeZoneName')
+        }
+
         if (offsetPart?.value) {
-          // Convert "GMT+08:00" to "UTC+8"
-          const match = offsetPart.value.match(/GMT([+-])(\d+):?(\d*)/)
+          const value = offsetPart.value
+
+          // Handle "GMT" with no offset (UTC+0)
+          if (value === 'GMT') {
+            return 'UTC+0'
+          }
+
+          // Convert "GMT+08:00" or "GMT-05:00" to "UTC+8" or "UTC-5"
+          // Make sign optional to handle edge cases
+          const match = value.match(/GMT([+-])?(\d+):?(\d*)/)
           if (match) {
-            const sign = match[1]
+            const sign = match[1] || '+'  // Default to + if no sign
             const hours = parseInt(match[2])
             const minutes = match[3] ? parseInt(match[3]) : 0
+
+            // Handle UTC+0 case
+            if (hours === 0 && minutes === 0) {
+              return 'UTC+0'
+            }
+
             if (minutes === 0) {
               return `UTC${sign}${hours}`
             } else {
@@ -473,9 +500,60 @@ export default function RemoteTimezonePage() {
             }
           }
         }
+
+        // Last resort fallback: calculate offset manually
+        console.warn(`Could not parse timezone offset for ${timezone}, using fallback`)
         return ''
       } catch (e) {
+        console.error(`Error getting UTC offset for ${timezone}:`, e)
         return ''
+      }
+    }
+
+    function getUTCOffsetNumber(timezone: string): number {
+      try {
+        const now = new Date()
+
+        // Try longOffset first
+        let formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: timezone,
+          timeZoneName: 'longOffset'
+        })
+        let parts = formatter.formatToParts(now)
+        let offsetPart = parts.find(part => part.type === 'timeZoneName')
+
+        // If longOffset doesn't work, try shortOffset
+        if (!offsetPart?.value) {
+          formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            timeZoneName: 'shortOffset'
+          })
+          parts = formatter.formatToParts(now)
+          offsetPart = parts.find(part => part.type === 'timeZoneName')
+        }
+
+        if (offsetPart?.value) {
+          const value = offsetPart.value
+
+          // Handle "GMT" with no offset
+          if (value === 'GMT') {
+            return 0
+          }
+
+          // Convert "GMT+08:00" to numeric offset (e.g., 8 or -5)
+          // Make sign optional to handle edge cases
+          const match = value.match(/GMT([+-])?(\d+):?(\d*)/)
+          if (match) {
+            const sign = match[1] || '+'  // Default to + if no sign
+            const hours = parseInt(match[2])
+            const minutes = match[3] ? parseInt(match[3]) : 0
+            const offset = hours + (minutes / 60)
+            return sign === '+' ? offset : -offset
+          }
+        }
+        return 0
+      } catch (e) {
+        return 0
       }
     }
 
@@ -500,6 +578,7 @@ export default function RemoteTimezonePage() {
           const city = cityWithDistance
           const offset = getTimezoneOffset(city.timezone)
           const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+          const utcOffset = getUTCOffset(city.timezone)
           const cityKey = `${city.name}-${city.timezone}`
           const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
           const flag = COUNTRY_FLAGS[city.country] || "🏳️"
@@ -508,11 +587,16 @@ export default function RemoteTimezonePage() {
           const resultItem = document.createElement("div")
           resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
           resultItem.innerHTML = `
-            <div class="floating-search-result-main">
-              <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
-              <div class="floating-search-result-timezone">${offsetDisplay}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                <div class="floating-search-result-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
+                <div class="floating-search-result-timezone" style="flex-shrink: 0;">${offsetDisplay}</div>
+              </div>
+              ${isAlreadySelected
+                ? '<div class="floating-search-result-added">Added</div>'
+                : `<div class="floating-search-result-utc" style="flex-shrink: 0;">(${utcOffset || 'UTC'})</div>`
+              }
             </div>
-            ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
           `
 
           if (!isAlreadySelected) {
@@ -560,8 +644,15 @@ export default function RemoteTimezonePage() {
           })
         : CITIES // Show all cities when query is empty
 
+      // Sort filtered cities by UTC offset
+      const sortedCities = filteredCities.sort((a, b) => {
+        const offsetA = getUTCOffsetNumber(a.timezone)
+        const offsetB = getUTCOffsetNumber(b.timezone)
+        return offsetA - offsetB
+      })
+
       // If no exact match, show location suggestions from geocoding
-      if (filteredCities.length === 0 && searchLower.length >= 3) {
+      if (sortedCities.length === 0 && searchLower.length >= 3) {
         // Show loading state with spinner
         floatingSearchResults.innerHTML = `
           <div class="floating-search-no-results" style="display: flex; align-items: center; gap: 8px;">
@@ -609,7 +700,7 @@ export default function RemoteTimezonePage() {
         return
       }
 
-      if (filteredCities.length === 0) {
+      if (sortedCities.length === 0) {
         floatingSearchResults.innerHTML = '<div class="floating-search-no-results">Type at least 3 characters to search</div>'
         floatingSearchResults.style.display = "block"
         return
@@ -617,11 +708,12 @@ export default function RemoteTimezonePage() {
 
       floatingSearchResults.innerHTML = ""
       // Show all cities when no search query, limit to 10 when searching
-      const resultsToShow = searchLower ? filteredCities.slice(0, 10) : filteredCities
+      const resultsToShow = searchLower ? sortedCities.slice(0, 10) : sortedCities
 
       resultsToShow.forEach((city) => {
         const offset = getTimezoneOffset(city.timezone)
         const offsetDisplay = offset !== "0" ? `${offset >= "0" ? "+" : ""}${offset}h` : "Local"
+        const utcOffset = getUTCOffset(city.timezone)
         const cityKey = `${city.name}-${city.timezone}`
         const isAlreadySelected = selectedCities.has(cityKey) || city.timezone === localTimezone
         const flag = COUNTRY_FLAGS[city.country] || "🏳️"
@@ -629,11 +721,16 @@ export default function RemoteTimezonePage() {
         const resultItem = document.createElement("div")
         resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
         resultItem.innerHTML = `
-          <div class="floating-search-result-main">
-            <div class="floating-search-result-name">${flag} ${city.name}, ${city.country}</div>
-            <div class="floating-search-result-timezone">${offsetDisplay}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+              <div class="floating-search-result-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${flag} ${city.name}, ${city.country}</div>
+              <div class="floating-search-result-timezone" style="flex-shrink: 0;">${offsetDisplay}</div>
+            </div>
+            ${isAlreadySelected
+              ? '<div class="floating-search-result-added">Added</div>'
+              : `<div class="floating-search-result-utc" style="flex-shrink: 0;">(${utcOffset || 'UTC'})</div>`
+            }
           </div>
-          ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
         `
 
         if (!isAlreadySelected) {
