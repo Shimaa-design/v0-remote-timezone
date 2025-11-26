@@ -587,14 +587,16 @@ export default function RemoteTimezonePage() {
           const resultItem = document.createElement("div")
           resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
           resultItem.innerHTML = `
-            <div class="floating-search-result-main">
-              <div class="floating-search-result-name">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="floating-search-result-timezone">${offsetDisplay}</div>
-                <div class="floating-search-result-utc">(${utcOffset || 'UTC'})</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                <div class="floating-search-result-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${flag} ${city.name}, ${city.country} <span style="color: #999; font-size: 0.85em;">(~${distanceKm}km)</span></div>
+                <div class="floating-search-result-timezone" style="flex-shrink: 0;">${offsetDisplay}</div>
               </div>
+              ${isAlreadySelected
+                ? '<div class="floating-search-result-added">Added</div>'
+                : `<div class="floating-search-result-utc" style="flex-shrink: 0;">(${utcOffset || 'UTC'})</div>`
+              }
             </div>
-            ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
           `
 
           if (!isAlreadySelected) {
@@ -719,14 +721,16 @@ export default function RemoteTimezonePage() {
         const resultItem = document.createElement("div")
         resultItem.className = `floating-search-result-item${isAlreadySelected ? " disabled" : ""}`
         resultItem.innerHTML = `
-          <div class="floating-search-result-main">
-            <div class="floating-search-result-name">${flag} ${city.name}, ${city.country}</div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div class="floating-search-result-timezone">${offsetDisplay}</div>
-              <div class="floating-search-result-utc">(${utcOffset || 'UTC'})</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+              <div class="floating-search-result-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${flag} ${city.name}, ${city.country}</div>
+              <div class="floating-search-result-timezone" style="flex-shrink: 0;">${offsetDisplay}</div>
             </div>
+            ${isAlreadySelected
+              ? '<div class="floating-search-result-added">Added</div>'
+              : `<div class="floating-search-result-utc" style="flex-shrink: 0;">(${utcOffset || 'UTC'})</div>`
+            }
           </div>
-          ${isAlreadySelected ? '<div class="floating-search-result-added">Added</div>' : ""}
         `
 
         if (!isAlreadySelected) {
